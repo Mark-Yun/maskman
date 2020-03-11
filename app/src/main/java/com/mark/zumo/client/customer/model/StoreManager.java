@@ -4,8 +4,11 @@ import android.content.Context;
 
 import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.Sub;
+import com.mark.zumo.client.customer.entity.Token;
 import com.mark.zumo.client.customer.model.local.DatabaseProvider;
 import com.mark.zumo.client.customer.model.local.dao.StoreDao;
+import com.mark.zumo.client.customer.model.local.dao.SubDao;
 import com.mark.zumo.client.customer.model.server.AppServer;
 import com.mark.zumo.client.customer.model.server.AppServerProvider;
 
@@ -22,13 +25,17 @@ public enum StoreManager {
     INSTANCE;
 
     private final Context context;
-    private final StoreDao storeDao;
     private final AppServer appServer;
+    private final StoreDao storeDao;
+    private final SubDao subDao;
 
     StoreManager() {
         context = ContextHolder.getContext();
-        storeDao = DatabaseProvider.INSTANCE.maskManDatabase.storeDao();
+
         appServer = AppServerProvider.INSTANCE.appServer;
+
+        storeDao = DatabaseProvider.INSTANCE.maskManDatabase.storeDao();
+        subDao = DatabaseProvider.INSTANCE.maskManDatabase.subDao();
     }
 
     public Maybe<List<Store>> queryStoreList(double latitude1, double longitude1,
@@ -47,10 +54,41 @@ public enum StoreManager {
                 .subscribeOn(Schedulers.io());
     }
 
+    public Maybe<List<Sub>> querySubList(final String userId) {
+        return appServer.querySubList(userId)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(subDao::insert);
+    }
+
     public Observable<Store> observableStore(final String code) {
         return storeDao.flowableStore(code)
                 .distinctUntilChanged()
                 .toObservable()
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Observable<Boolean> observableSub(final String userId, final String code) {
+        return subDao.flowableSub(userId, code)
+                .distinctUntilChanged()
+                .map(integer -> integer > 0)
+                .toObservable()
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Maybe<Sub> removeSub(final String userId, final String code) {
+        return appServer.deleteSub(userId, code)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(subDao::delete);
+    }
+
+    public Maybe<Sub> createSub(final String userId, final String code) {
+        return appServer.createSub(new Sub(userId, code))
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(subDao::insert);
+    }
+
+    public Maybe<Token> registerPushToken(final String userId, final String tokenValue) {
+        return appServer.createToken(new Token(userId, tokenValue))
                 .subscribeOn(Schedulers.io());
     }
 }

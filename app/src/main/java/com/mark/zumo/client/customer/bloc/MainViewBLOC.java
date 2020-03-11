@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.Sub;
 import com.mark.zumo.client.customer.model.LocationManager;
 import com.mark.zumo.client.customer.model.StoreManager;
 
@@ -67,6 +68,14 @@ public class MainViewBLOC extends AndroidViewModel {
         Log.d(TAG, "queryStoreList: la1=" + latitude1 + " lo1" + longitude1
                 + " la2=" + latitude2 + " lo2=" + longitude2);
         return storeManager.queryStoreList(latitude1, longitude1, latitude2, longitude2)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(compositeDisposable::add);
+    }
+
+    public Maybe<List<Sub>> querySubList(final String userID) {
+        Log.d(TAG, "querySubList: userID=" + userID);
+
+        return storeManager.querySubList(userID)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(compositeDisposable::add);
     }

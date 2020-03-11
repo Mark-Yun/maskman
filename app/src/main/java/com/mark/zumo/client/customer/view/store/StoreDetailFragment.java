@@ -15,8 +15,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
+import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
@@ -48,6 +51,8 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.close) AppCompatImageView close;
 
     private MainViewBLOC mainViewBLOC;
+    private SubscribeBLOC subscribeBLOC;
+
     private Consumer<Fragment> onCloseClicked;
 
     public static StoreDetailFragment newInstance(final String code) {
@@ -67,7 +72,9 @@ public class StoreDetailFragment extends Fragment {
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
+        subscribeBLOC = ViewModelProviders.of(this).get(SubscribeBLOC.class);
     }
 
     @Nullable
@@ -87,10 +94,35 @@ public class StoreDetailFragment extends Fragment {
         }
 
         String code = getArguments().getString(CODE_KEY);
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mainViewBLOC.observableStore(code)
                 .doOnNext(this::onLoadStore)
                 .subscribe();
+
+        if (firebaseUser != null) {
+            subscribeBLOC.observableSub(firebaseUser.getUid(), code)
+                    .doOnNext(this::onLoadSubscription)
+                    .subscribe();
+        }
+
+        subscription.setOnClickListener(this::onSubscriptionClicked);
+    }
+
+    private void onLoadSubscription(final boolean isChecked) {
+        subscription.setChecked(isChecked);
+    }
+
+    private boolean onSubscriptionClicked(final View view) {
+        if (getArguments() == null) {
+            return true;
+        }
+
+        String code = getArguments().getString(CODE_KEY);
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked());
+        return true;
     }
 
     private void onLoadStore(final Store store) {

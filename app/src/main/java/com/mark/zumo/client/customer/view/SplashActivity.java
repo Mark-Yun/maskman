@@ -29,6 +29,9 @@ public class SplashActivity extends AppCompatActivity {
 
     private MainViewBLOC mainViewBLOC;
 
+    private boolean completeLocation;
+    private boolean completeSubList;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +69,26 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             //todo change load data
             mainViewBLOC.maybeCurrentLocation()
-                    .doOnSuccess(x -> Navigator.startActivityWithFade(this, MapsActivity.class))
+                    .doOnSuccess(x -> {
+                        completeLocation = true;
+                        startMapsActivityIfPossible();
+                    })
                     .subscribe();
+
+//            mainViewBLOC.querySubList(firebaseUser.getUid())
+//                    .doOnSuccess(x -> {
+//                        completeSubList = true;
+//                        startMapsActivityIfPossible();
+//                    })
+//                    .subscribe();
         }
+    }
+
+    private void startMapsActivityIfPossible() {
+//        if (!completeLocation || !completeSubList) {
+//            return;
+//        }
+
+        Navigator.startActivityWithFade(this, MapsActivity.class);
     }
 }
