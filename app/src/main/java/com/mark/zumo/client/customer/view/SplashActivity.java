@@ -75,19 +75,19 @@ public class SplashActivity extends AppCompatActivity {
                     })
                     .subscribe();
 
-//            mainViewBLOC.querySubList(firebaseUser.getUid())
-//                    .doOnSuccess(x -> {
-//                        completeSubList = true;
-//                        startMapsActivityIfPossible();
-//                    })
-//                    .subscribe();
+            mainViewBLOC.querySubList(firebaseUser.getUid())
+                    .doOnSuccess(x -> {
+                        completeSubList = true;
+                        startMapsActivityIfPossible();
+                    })
+                    .subscribe();
         }
     }
 
     private void startMapsActivityIfPossible() {
-//        if (!completeLocation || !completeSubList) {
-//            return;
-//        }
+        if (!completeLocation || !completeSubList) {
+            return;
+        }
 
         Navigator.startActivityWithFade(this, MapsActivity.class);
     }
