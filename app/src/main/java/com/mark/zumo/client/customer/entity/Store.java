@@ -29,4 +29,17 @@ public class Store {
         store.type = "03";
         return store;
     }
+
+    public enum Stock {
+        PLENTY("plenty"),
+        SOME("some"),
+        FEW("few"),
+        EMPTY("empty");
+
+        public final String value;
+
+        Stock(final String value) {
+            this.value = value;
+        }
+    }
 }

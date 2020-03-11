@@ -1,5 +1,6 @@
 package com.mark.zumo.client.customer.view;
 
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -25,20 +25,22 @@ import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.MapUtils;
+import com.mark.zumo.client.customer.util.FilterSettingUtils;
 import com.mark.zumo.client.customer.view.store.StoreDetailFragment;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -50,14 +52,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private CompositeDisposable compositeDisposable;
 
+    private List<Store> currentStoreList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
         compositeDisposable = new CompositeDisposable();
+        currentStoreList = new CopyOnWriteArrayList<>();
 
+        inflateFilterFragment();
         inflateMapFragment();
+    }
+
+    private void inflateFilterFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.filter, MapFilterFragment.newInstance())
+                .commit();
+
+        FilterSettingUtils.registerOnFilterSettingChanged(this, this);
     }
 
     private void inflateMapFragment() {
@@ -154,9 +169,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             mainViewBLOC.observableStoreList(northeast.latitude, northeast.longitude,
                     southwest.latitude, southwest.longitude)
+                    .map(this::setStoreList)
                     .doOnNext(stores -> onLoadStoreList(googleMap, stores))
                     .subscribe();
         });
+    }
+
+    private List<Store> setStoreList(final List<Store> storeList) {
+        currentStoreList.clear();
+        currentStoreList.addAll(storeList);
+        return currentStoreList;
     }
 
     private void addMarker(final GoogleMap googleMap, LatLng latLng) {
@@ -188,6 +210,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         compositeDisposable.clear();
 
         for (Store store : storeList) {
+            if (!FilterSettingUtils.getFilterSetting(this, store.remain_stat)) {
+                continue;
+            }
+
             createMarker(store)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -208,5 +234,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             );
             emitter.onComplete();
         });
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+        supportMapFragment.getMapAsync(googleMap -> onLoadStoreList(googleMap, currentStoreList));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        FilterSettingUtils.unRegisterOnFilterSettingChanged(this, this);
     }
 }

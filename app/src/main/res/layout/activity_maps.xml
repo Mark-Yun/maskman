@@ -16,6 +16,16 @@
         map:layout_constraintBottom_toBottomOf="@+id/map"
         map:layout_constraintHorizontal_bias="1" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/block_half"
+        android:background="@android:color/transparent"
+        android:elevation="@dimen/block1"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent" />
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
