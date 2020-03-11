@@ -4,8 +4,8 @@
     <string name="signin_desc">심평원, 공공데이터 포털에서 제공하는 공적 마스크 재고 현황을 제공합니다.</string>
 
     <string name="plenty">100+</string>
-    <string name="some">30+</string>
-    <string name="few">2+</string>
+    <string name="some">30~99</string>
+    <string name="few">2~29</string>
     <string name="empty">0</string>
 
     <string name="desc_name">판매처 이름</string>

@@ -11,7 +11,6 @@ import com.mark.zumo.client.customer.model.server.AppServerProvider;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -39,12 +38,12 @@ public enum StoreManager {
                 .doOnSuccess(storeDao::insertStoreList);
     }
 
-    public Flowable<List<Store>> observableStoreList(double latitude1, double longitude1,
-                                                     double latitude2, double longitude2) {
+    public Observable<List<Store>> observableStoreList(double latitude1, double longitude1,
+                                                       double latitude2, double longitude2) {
 
         return storeDao.flowableStoreListByGeo(latitude1, longitude1, latitude2, longitude2)
                 .distinctUntilChanged()
-//                .toObservable()
+                .toObservable()
                 .subscribeOn(Schedulers.io());
     }
 

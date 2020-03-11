@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,11 @@ import com.mark.zumo.client.customer.R;
  * Created by mark on 20. 3. 10.
  */
 public class MapUtils {
+
+    public static final String PLENTY = "plenty";
+    public static final String SOME = "some";
+    public static final String FEW = "few";
+    public static final String EMPTY = "empty";
 
     public static BitmapDescriptor createCustomMarker(final Activity activity, final String status,
                                                       final String type) {
@@ -59,6 +65,10 @@ public class MapUtils {
 
     @DrawableRes
     private static int getTypeDrawable(final String type) {
+        if (TextUtils.isEmpty(type)) {
+            return R.drawable.ic_local_hospital_black_24dp;
+        }
+
         switch (type) {
             case "01":
                 return R.drawable.ic_local_hospital_black_24dp;
@@ -66,56 +76,67 @@ public class MapUtils {
                 return R.drawable.ic_post;
             case "03":
                 return R.drawable.ic_nh;
+            default:
+                return R.drawable.ic_local_hospital_black_24dp;
         }
-
-        return 0;
     }
 
     @ColorRes
     private static int getStatusColor(final String status) {
-        switch (status) {
-            case "plenty":
-                return R.color.plenty;
-            case "some":
-                return R.color.some;
-            case "few":
-                return R.color.few;
-            case "empty":
-                return R.color.empty;
+        if (TextUtils.isEmpty(status)) {
+            return R.color.empty;
         }
 
-        return 0;
+        switch (status) {
+            case PLENTY:
+                return R.color.plenty;
+            case SOME:
+                return R.color.some;
+            case FEW:
+                return R.color.few;
+            case EMPTY:
+            default:
+                return R.color.empty;
+        }
     }
 
     @DrawableRes
     private static int getStatusBackground(final String status) {
-        switch (status) {
-            case "plenty":
-                return R.drawable.corner_background_plenty;
-            case "some":
-                return R.drawable.corner_background_some;
-            case "few":
-                return R.drawable.corner_background_few;
-            case "empty":
-                return R.drawable.corner_background_empty;
+        if (TextUtils.isEmpty(status)) {
+            return R.drawable.corner_background_empty;
         }
 
-        return 0;
+        switch (status) {
+            case PLENTY:
+                return R.drawable.corner_background_plenty;
+            case SOME:
+                return R.drawable.corner_background_some;
+            case FEW:
+                return R.drawable.corner_background_few;
+            case EMPTY:
+                return R.drawable.corner_background_empty;
+            default:
+                return R.drawable.corner_background_empty;
+        }
     }
 
     @StringRes
     private static int getStatusLabel(final String status) {
-        switch (status) {
-            case "plenty":
-                return R.string.plenty;
-            case "some":
-                return R.string.some;
-            case "few":
-                return R.string.few;
-            case "empty":
-                return R.string.empty;
+        if (TextUtils.isEmpty(status)) {
+            return R.string.empty;
         }
 
-        return 0;
+        switch (status) {
+            case PLENTY:
+                return R.string.plenty;
+            case SOME:
+                return R.string.some;
+            case FEW:
+                return R.string.few;
+            case EMPTY:
+                return R.string.empty;
+            default:
+                return R.string.empty;
+        }
     }
 }

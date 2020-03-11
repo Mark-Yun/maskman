@@ -27,8 +27,16 @@ import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.MapUtils;
 import com.mark.zumo.client.customer.view.store.StoreDetailFragment;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Optional;
+
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -40,11 +48,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MainViewBLOC mainViewBLOC;
     private SupportMapFragment supportMapFragment;
 
+    private CompositeDisposable compositeDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
+        compositeDisposable = new CompositeDisposable();
 
         inflateMapFragment();
     }
@@ -86,15 +97,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.setOnMyLocationButtonClickListener(() -> requestMyLocationButtonClicked(googleMap));
         googleMap.setOnCameraIdleListener(this::onCameraIdle);
         googleMap.setOnMarkerClickListener(marker -> onMarkerClicked(googleMap, marker));
-
-        final UiSettings uiSettings = googleMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
-        uiSettings.setCompassEnabled(true);
     }
 
     private boolean onMarkerClicked(final GoogleMap googleMap, final Marker marker) {
 
-        CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15);
+        float zoom = Math.max(googleMap.getCameraPosition().zoom, DEFAULT_ZOOM);
+        CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom);
         googleMap.animateCamera(locationUpdate);
 
         StoreDetailFragment storeDetailFragment = StoreDetailFragment.newInstance(marker.getTitle())
@@ -142,14 +150,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             mainViewBLOC.queryStoreList(northeast.latitude, northeast.longitude,
                     southwest.latitude, southwest.longitude)
-                    .doOnSuccess(stores -> onLoadStoreList(googleMap, stores))
                     .subscribe();
 
-//            mainViewBLOC.flowableStoreList(northeast.latitude, northeast.longitude,
-//                    southwest.latitude, southwest.longitude)
-//                    .doOnNext(stores -> onLoadStoreList(googleMap, stores))
-//                    .subscribe();
+            mainViewBLOC.observableStoreList(northeast.latitude, northeast.longitude,
+                    southwest.latitude, southwest.longitude)
+                    .doOnNext(stores -> onLoadStoreList(googleMap, stores))
+                    .subscribe();
         });
+    }
+
+    private void addMarker(final GoogleMap googleMap, LatLng latLng) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng);
+
+        googleMap.addMarker(markerOptions);
     }
 
     private boolean requestMyLocationButtonClicked(final GoogleMap googleMap) {
@@ -167,19 +181,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM);
         googleMap.moveCamera(locationUpdate);
-
     }
 
     private void onLoadStoreList(final GoogleMap googleMap, final List<Store> storeList) {
         googleMap.clear();
+        compositeDisposable.clear();
 
         for (Store store : storeList) {
-            MarkerOptions markerOptions = new MarkerOptions()
-                    .position(new LatLng(store.lat, store.lng))
-                    .icon(MapUtils.createCustomMarker(this, store.remain_stat, store.type))
-                    .title(store.code);
-
-            googleMap.addMarker(markerOptions);
+            createMarker(store)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess(googleMap::addMarker)
+                    .doOnSubscribe(compositeDisposable::add)
+                    .subscribe();
         }
+    }
+
+    @NotNull
+    private Maybe<MarkerOptions> createMarker(final Store store) {
+        return Maybe.create(emitter -> {
+            emitter.onSuccess(
+                    new MarkerOptions()
+                            .position(new LatLng(store.lat, store.lng))
+                            .icon(MapUtils.createCustomMarker(this, store.remain_stat, store.type))
+                            .title(store.code)
+            );
+            emitter.onComplete();
+        });
     }
 }
