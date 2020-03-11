@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "386740347802",
+    "firebase_url": "https://mask-map-d0c8c.firebaseio.com",
+    "project_id": "mask-map-d0c8c",
+    "storage_bucket": "mask-map-d0c8c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:386740347802:android:6c844df318df98fc865023",
+        "android_client_info": {
+          "package_name": "com.mark.zumo.client.customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "386740347802-3dk7gp152aq8id05d82hq674e40005cv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mark.zumo.client.customer",
+            "certificate_hash": "25b3717468ff96cf2d7309a2e0e715c14312b63e"
+          }
+        },
+        {
+          "client_id": "386740347802-2ttg12idhhnfnk1o7vj7amp2t8t46ecu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvAQdJpBUgaioLHH5WZw7lrYZ7Pci5gYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "386740347802-2ttg12idhhnfnk1o7vj7amp2t8t46ecu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

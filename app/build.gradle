@@ -1,0 +1,97 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.mark.zumo.client.customer"
+        minSdkVersion 24
+        targetSdkVersion 28
+        versionCode 210020001
+        versionName "2.0.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../zumun_customer_release.jks')
+            storePassword 'alsgur891121'
+            keyAlias = 'zumun_customer_release'
+            keyPassword 'alsgur891121'//for local build
+        }
+
+        debug {
+            storeFile file('../zumun_customer_release.jks')
+            storePassword 'alsgur891121'
+            keyAlias = 'zumun_customer_release'
+            keyPassword 'alsgur891121'//for local build
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    def lifecycle_version = "2.0.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+
+    def room_version = "2.1.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    //For Kotlin use kapt instead of annotationProcessor
+    implementation "androidx.room:room-rxjava2:$room_version" // optional - RxJava support for Room
+    implementation "androidx.room:room-guava:$room_version"
+    // optional - Guava support for Room, including Optional and ListenableFuture
+    testImplementation "androidx.room:room-testing:$room_version" // Test helpers
+
+    //retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.6.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.0.1'
+
+    //rxjava2
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.2"
+
+    //butter knife
+    def butter_knife_version = "10.1.0"
+    implementation "com.jakewharton:butterknife:$butter_knife_version"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butter_knife_version"
+
+    //firebase
+    implementation "com.google.firebase:firebase-auth:19.2.0"
+    implementation "com.google.firebase:firebase-core:17.2.3"
+    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    implementation 'com.google.firebase:firebase-messaging:20.1.2'
+    implementation 'com.google.firebase:firebase-analytics:17.2.3'
+
+    //google play services
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.libraries.places:places:2.2.0'
+
+    //chunk
+    debugImplementation 'com.readystatesoftware.chuck:library:1.1.0'
+    releaseImplementation 'com.readystatesoftware.chuck:library-no-op:1.1.0'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="block_half">4dp</dimen>
+    <dimen name="block1">8dp</dimen>
+    <dimen name="block2">16dp</dimen>
+    <dimen name="block3">24dp</dimen>
+    <dimen name="block4">32dp</dimen>
+    <dimen name="block5">40dp</dimen>
+    <dimen name="block6">48dp</dimen>
+    <dimen name="block7">56dp</dimen>
+    <dimen name="block8">64dp</dimen>
+    <dimen name="block9">72dp</dimen>
+    <dimen name="block10">80dp</dimen>
+</resources>

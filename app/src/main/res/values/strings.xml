@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">마스크 맵</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="signin_desc">심평원, 공공데이터 포털에서 제공하는 공적 마스크 재고 현황을 제공합니다.</string>
+
+    <string name="plenty">100+</string>
+    <string name="some">30+</string>
+    <string name="few">2+</string>
+    <string name="empty">0</string>
+
+    <string name="desc_name">판매처 이름</string>
+    <string name="desc_type">판매처 유형</string>
+    <string name="desc_addr">주소</string>
+    <string name="desc_stock_at">입고 시간</string>
+    <string name="desc_stock_at_to">남은 시간</string>
+    <string name="desc_stock">재고 상태</string>
+    <string name="desc_created_at">업데이트 된 시간</string>
+    <string name="desc_sub_stock_in">재고 알림</string>
+
+    <string name="stock_at_passed">입고 완료</string>
+
+    <string name="type_nh">농협</string>
+    <string name="type_post">우체국</string>
+    <string name="type_drugstore">약국</string>
+
+    <string name="stock_plenty">100개 이상</string>
+    <string name="stock_some">100개 미만</string>
+    <string name="stock_few">30개 미만</string>
+    <string name="stock_empty">매진</string>
+
+    <string name="permission_title">권한 부여하기</string>
+    <string name="permission_description">설명된 용도 외에는 사용하지 않습니다. \n권한이 부여되지 않을 경우 앱이 정상동작하지 않을 수 있습니다.</string>
+    <string name="permission_request_button_text">권한 부여하기</string>
+
+    <string name="permission_name_location">위치정보</string>
+    <string name="permission_description_location">현재 위치를 기반으로 판매처를 검색합니다</string>
+</resources>
