@@ -35,6 +35,7 @@
         </activity>
         <activity android:name=".view.signin.SignInActivity" />
         <activity android:name=".view.permission.PermissionActivity" />
+        <activity android:name=".view.store.list.StoreListActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

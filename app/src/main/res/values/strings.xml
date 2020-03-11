@@ -16,6 +16,7 @@
     <string name="desc_stock">재고 상태</string>
     <string name="desc_created_at">업데이트 된 시간</string>
     <string name="desc_sub_stock_in">재고 알림</string>
+    <string name="desc_dist">거리</string>
 
     <string name="stock_at_passed">입고 완료</string>
 
@@ -34,4 +35,10 @@
 
     <string name="permission_name_location">위치정보</string>
     <string name="permission_description_location">현재 위치를 기반으로 판매처를 검색합니다</string>
+
+    <string name="list_button_text_zero">현재 위치에서 리스트로 보기(0)</string>
+    <string name="list_button_text">현재 위치에서 리스트로 보기(%d)</string>
+
+    <string name="distance_description_under_100m">100m 이내</string>
+    <string name="distance_format_kilo_meter">%skm</string>
 </resources>

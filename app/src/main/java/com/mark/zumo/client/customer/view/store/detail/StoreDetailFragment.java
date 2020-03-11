@@ -1,4 +1,4 @@
-package com.mark.zumo.client.customer.view.store;
+package com.mark.zumo.client.customer.view.store.detail;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,6 +111,7 @@ public class StoreDetailFragment extends Fragment {
     }
 
     private void onLoadSubscription(final boolean isChecked) {
+        subscription.setEnabled(true);
         subscription.setChecked(isChecked);
     }
 
@@ -121,6 +123,7 @@ public class StoreDetailFragment extends Fragment {
         String code = getArguments().getString(CODE_KEY);
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        subscription.setEnabled(false);
         subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked());
         return true;
     }

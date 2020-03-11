@@ -1,11 +1,14 @@
 package com.mark.zumo.client.customer.view;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -21,19 +24,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.button.MaterialButton;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
-import com.mark.zumo.client.customer.util.MapUtils;
 import com.mark.zumo.client.customer.util.FilterSettingUtils;
-import com.mark.zumo.client.customer.view.store.StoreDetailFragment;
+import com.mark.zumo.client.customer.util.MapUtils;
+import com.mark.zumo.client.customer.view.store.detail.StoreDetailFragment;
+import com.mark.zumo.client.customer.view.store.list.StoreListActivity;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -46,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final float MIN_ZOOM = 13.5f;
+    @BindView(R.id.list_button) MaterialButton listButton;
 
     private MainViewBLOC mainViewBLOC;
     private SupportMapFragment supportMapFragment;
@@ -58,6 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        ButterKnife.bind(this);
 
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
         compositeDisposable = new CompositeDisposable();
@@ -209,10 +220,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.clear();
         compositeDisposable.clear();
 
+        int count = 0;
+
         for (Store store : storeList) {
             if (!FilterSettingUtils.getFilterSetting(this, store.remain_stat)) {
                 continue;
             }
+
+            listButton.setText(getString(R.string.list_button_text, ++count));
 
             createMarker(store)
                     .subscribeOn(Schedulers.computation())
@@ -246,5 +261,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onDestroy();
 
         FilterSettingUtils.unRegisterOnFilterSettingChanged(this, this);
+    }
+
+    @OnClick(R.id.list_button)
+    public void onListButtonClicked() {
+        List<Store> refinedStoreList = currentStoreList.stream()
+                .filter(store -> FilterSettingUtils.getFilterSetting(this, store.remain_stat))
+                .collect(Collectors.toList());
+
+        StoreListActivity.startActivity(this, refinedStoreList);
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //TODO Refactor
+        if (requestCode == StoreListActivity.REQUEST_CODE) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                String storeCode = data.getStringExtra(StoreListActivity.KEY_CODE);
+                supportMapFragment.getMapAsync(googleMap -> {
+                    mainViewBLOC.observableStore(storeCode)
+                            .firstElement()
+                            .doOnSuccess(store -> {
+                                float zoom = Math.max(googleMap.getCameraPosition().zoom, DEFAULT_ZOOM);
+                                CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(store.lat, store.lng), zoom);
+                                googleMap.animateCamera(locationUpdate);
+
+                                StoreDetailFragment storeDetailFragment = StoreDetailFragment.newInstance(store.code)
+                                        .onCloseClicked(this::onCloseClicked);
+
+                                findViewById(R.id.store_detail).setVisibility(View.VISIBLE);
+                                getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.store_detail, storeDetailFragment)
+                                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                        .commit();
+
+                            }).subscribe();
+                });
+            }
+        }
     }
 }
