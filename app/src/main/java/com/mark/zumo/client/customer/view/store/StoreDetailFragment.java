@@ -1,9 +1,11 @@
 package com.mark.zumo.client.customer.view.store;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,8 +18,11 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.function.Consumer;
 
 import butterknife.BindView;
@@ -29,6 +34,8 @@ import butterknife.OnClick;
  */
 public class StoreDetailFragment extends Fragment {
 
+    private static final String TAG = StoreDetailFragment.class.getSimpleName();
+
     private static final String CODE_KEY = "code";
 
     @BindView(R.id.subscription) SwitchMaterial subscription;
@@ -36,8 +43,8 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.type) AppCompatTextView type;
     @BindView(R.id.addr) AppCompatTextView addr;
     @BindView(R.id.stock) AppCompatTextView stock;
-    @BindView(R.id.stock_at) AppCompatTextView stockAt;
-    @BindView(R.id.created_at) AppCompatTextView createdAt;
+    @BindView(R.id.stock_at) Chronometer stockAt;
+    @BindView(R.id.created_at) Chronometer createdAt;
     @BindView(R.id.close) AppCompatImageView close;
 
     private MainViewBLOC mainViewBLOC;
@@ -75,6 +82,10 @@ public class StoreDetailFragment extends Fragment {
     }
 
     private void inflateView() {
+        if (getArguments() == null) {
+            return;
+        }
+
         String code = getArguments().getString(CODE_KEY);
 
         mainViewBLOC.observableStore(code)
@@ -87,8 +98,24 @@ public class StoreDetailFragment extends Fragment {
         type.setText(StoreUtils.getTypeLabel(getContext(), store.type));
         addr.setText(store.addr);
         stock.setText(StoreUtils.getStockLabel(getContext(), store.remain_stat));
-        stockAt.setText(store.stock_at);
-        createdAt.setText(store.create_at);
+        final Date stockAtDate = DateUtils.createDate(store.stock_at);
+        if (stockAtDate != null) {
+            updateChronometer(stockAt, stockAtDate);
+        }
+
+        final Date createAtDate = DateUtils.createDate(store.create_at);
+        if (createAtDate != null) {
+            updateChronometer(createdAt, createAtDate);
+        }
+
+    }
+
+    private void updateChronometer(final Chronometer chronometer, final Date createAtDate) {
+        long time = createAtDate.getTime();
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        chronometer.setFormat("%s 전");
+        chronometer.setBase(SystemClock.elapsedRealtime() - (currentTime - time));
+        chronometer.start();
     }
 
     @OnClick(R.id.close)

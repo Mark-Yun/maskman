@@ -22,7 +22,20 @@ public class DateUtils {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         try {
-            return format.parse(dateString);
+            Date date = format.parse(dateString);
+
+            Calendar calendar = Calendar.getInstance(); // creates a new calendar instance
+            calendar.setTime(date);   // assigns calendar to given date
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);// gets hour in 24h format
+            int minute = calendar.get(Calendar.MINUTE);// gets month number, NOTE this is zero based!
+            int second = calendar.get(Calendar.SECOND);// gets month number, NOTE this is zero based!
+
+            Log.d(TAG, "convertCreatedAt: year=" + year + " month=" + month + " day=" + day + " hour=" + hour + " minute=" + minute + " second=" + second);
+
+            return date;
         } catch (ParseException e) {
             Log.e(TAG, "createDate: ", e);
         }
