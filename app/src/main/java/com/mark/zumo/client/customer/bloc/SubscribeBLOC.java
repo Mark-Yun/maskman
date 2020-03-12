@@ -1,10 +1,14 @@
 package com.mark.zumo.client.customer.bloc;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.graphics.drawable.Icon;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.model.StoreManager;
 
 import io.reactivex.Observable;

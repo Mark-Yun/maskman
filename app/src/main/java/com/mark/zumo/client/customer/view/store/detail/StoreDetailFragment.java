@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
+import com.mark.zumo.client.customer.bloc.NotificationBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.DateUtils;
@@ -142,7 +143,6 @@ public class StoreDetailFragment extends Fragment {
         if (createAtDate != null) {
             updateChronometer(createdAt, createAtDate);
         }
-
     }
 
     private void updateChronometer(final Chronometer chronometer, final Date createAtDate) {

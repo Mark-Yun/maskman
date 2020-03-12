@@ -22,6 +22,8 @@ import com.mark.zumo.client.customer.view.signin.SignInActivity;
  */
 public class SplashActivity extends AppCompatActivity {
 
+    public static final String KEY_CODE = "code";
+
     private static final String TAG = SplashActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_PERMISSION = 8121;
@@ -89,6 +91,6 @@ public class SplashActivity extends AppCompatActivity {
             return;
         }
 
-        Navigator.startActivityWithFade(this, MapsActivity.class);
+        Navigator.startActivityWithFade(this, MapsActivity.class, getIntent().getExtras());
     }
 }

@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
+import com.mark.zumo.client.customer.bloc.NotificationBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.FilterSettingUtils;
 import com.mark.zumo.client.customer.util.MapUtils;
@@ -50,6 +51,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
+
+    public static final String KEY_CODE = "code";
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -114,7 +117,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mainViewBLOC.observeCurrentLocation()
                 .subscribe();
 
-        onLocationLoaded(googleMap, mainViewBLOC.getCurrentLocation());
+        if (getIntent().hasExtra(KEY_CODE)) {
+            mainViewBLOC.observableStore(getIntent().getStringExtra(KEY_CODE))
+                    .firstElement()
+                    .doOnSuccess(this::focusOnStore)
+                    .subscribe();
+        } else {
+            onLocationLoaded(googleMap, mainViewBLOC.getCurrentLocation());
+        }
+
         initUiSettings(googleMap);
     }
 
@@ -127,11 +138,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private boolean onMarkerClicked(final GoogleMap googleMap, final Marker marker) {
 
+        return focusOnStore(googleMap, marker.getTitle(), marker.getPosition());
+    }
+
+    private void focusOnStore(final Store store) {
+        supportMapFragment.getMapAsync(googleMap ->
+                focusOnStore(googleMap, store.code, new LatLng(store.lat, store.lng))
+        );
+    }
+
+    private boolean focusOnStore(final GoogleMap googleMap, final String code, final LatLng latLng) {
         float zoom = Math.max(googleMap.getCameraPosition().zoom, DEFAULT_ZOOM);
-        CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom);
+        CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
         googleMap.animateCamera(locationUpdate);
 
-        StoreDetailFragment storeDetailFragment = StoreDetailFragment.newInstance(marker.getTitle())
+        StoreDetailFragment storeDetailFragment = StoreDetailFragment.newInstance(code)
                 .onCloseClicked(this::onCloseClicked);
 
         findViewById(R.id.store_detail).setVisibility(View.VISIBLE);
@@ -276,30 +297,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //TODO Refactor
-        if (requestCode == StoreListActivity.REQUEST_CODE) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                String storeCode = data.getStringExtra(StoreListActivity.KEY_CODE);
-                supportMapFragment.getMapAsync(googleMap -> {
-                    mainViewBLOC.observableStore(storeCode)
-                            .firstElement()
-                            .doOnSuccess(store -> {
-                                float zoom = Math.max(googleMap.getCameraPosition().zoom, DEFAULT_ZOOM);
-                                CameraUpdate locationUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(store.lat, store.lng), zoom);
-                                googleMap.animateCamera(locationUpdate);
-
-                                StoreDetailFragment storeDetailFragment = StoreDetailFragment.newInstance(store.code)
-                                        .onCloseClicked(this::onCloseClicked);
-
-                                findViewById(R.id.store_detail).setVisibility(View.VISIBLE);
-                                getSupportFragmentManager().beginTransaction()
-                                        .replace(R.id.store_detail, storeDetailFragment)
-                                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                        .commit();
-
-                            }).subscribe();
-                });
+        if (requestCode == StoreListActivity.REQUEST_CODE
+                && resultCode == AppCompatActivity.RESULT_OK) {
+            if (data == null) {
+                return;
             }
+
+            String storeCode = data.getStringExtra(StoreListActivity.KEY_CODE);
+            mainViewBLOC.observableStore(storeCode)
+                    .firstElement()
+                    .doOnSuccess(this::focusOnStore)
+                    .subscribe();
         }
     }
 }
