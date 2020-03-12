@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +17,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
@@ -98,8 +100,10 @@ public class StoreDetailFragment extends Fragment {
                 .subscribe();
 
         if (firebaseUser != null) {
+            subscription.setEnabled(false);
             subscribeBLOC.observableSub(firebaseUser.getUid(), code)
-                    .doOnNext(this::onLoadSubscription)
+                    .firstElement()
+                    .doOnSuccess(this::onFirstLoadSubscription)
                     .subscribe();
         }
 
@@ -107,9 +111,24 @@ public class StoreDetailFragment extends Fragment {
     }
 
     private void onLoadSubscription(final boolean isChecked) {
+        subscription.setEnabled(true);
+
+        if (subscription.isChecked() == isChecked) {
+            return;
+        }
+
         Log.d(TAG, "onLoadSubscription: isChecked=" + isChecked);
+
+        subscription.setChecked(isChecked);
+    }
+
+    private void onFirstLoadSubscription(final boolean isChecked) {
+        Log.d(TAG, "onFirstLoadSubscription: isChecked=" + isChecked);
+
         subscription.setEnabled(true);
         subscription.setChecked(isChecked);
+
+        observeSubscriptionInfo();
     }
 
     private boolean onSubscriptionClicked(final View view) {
@@ -118,17 +137,46 @@ public class StoreDetailFragment extends Fragment {
         }
 
         Log.d(TAG, "onSubscriptionClicked: ");
+        subscription.setEnabled(false);
 
         String code = getArguments().getString(CODE_KEY);
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
             return true;
         }
 
-        subscription.setEnabled(false);
-        subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked());
+        subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked())
+                .doOnError(this::onSubscribeError)
+                .subscribe();
+
         return true;
+    }
+
+    private void onSubscribeError(final Throwable t) {
+        Toast.makeText(ContextHolder.getContext(), "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+        subscription.setChecked(!subscription.isChecked());
+        subscription.setEnabled(true);
+
+        observeSubscriptionInfo();
+    }
+
+    private void observeSubscriptionInfo() {
+        if (getArguments() == null) {
+            return;
+        }
+
+        String code = getArguments().getString(CODE_KEY);
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null) {
+            return;
+        }
+
+        subscribeBLOC.observableSub(firebaseUser.getUid(), code)
+                .doOnNext(this::onLoadSubscription)
+                .doOnError(this::onSubscribeError)
+                .subscribe();
     }
 
     private void onLoadStore(final Store store) {

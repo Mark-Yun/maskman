@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,9 +26,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
-import com.mark.zumo.client.customer.bloc.NotificationBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.FilterSettingUtils;
 import com.mark.zumo.client.customer.util.MapUtils;
@@ -57,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private static final float DEFAULT_ZOOM = 15f;
-    private static final float MIN_ZOOM = 13.5f;
+    private static final float MIN_ZOOM = 13f;
     @BindView(R.id.list_button) MaterialButton listButton;
 
     private MainViewBLOC mainViewBLOC;
@@ -189,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     + " southwest.x=" + southwest.latitude + " southwest.longitude=" + southwest.longitude);
 
             if (googleMap.getCameraPosition().zoom < MIN_ZOOM) {
-                googleMap.clear();
+                Toast.makeText(ContextHolder.getContext(), "범위가 너무 넓습니다. 지도를 확대해주세요.", Toast.LENGTH_SHORT).show();
                 return;
             }
 

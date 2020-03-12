@@ -1,16 +1,14 @@
 package com.mark.zumo.client.customer.bloc;
 
 import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.graphics.drawable.Icon;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.Sub;
 import com.mark.zumo.client.customer.model.StoreManager;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -37,17 +35,15 @@ public class SubscribeBLOC extends AndroidViewModel {
                 .doOnSubscribe(compositeDisposable::add);
     }
 
-    public void subscribe(final String userId, final String code, final boolean enable) {
+    public Maybe<Sub> subscribe(final String userId, final String code, final boolean enable) {
         if (enable) {
-            storeManager.createSub(userId, code)
+            return storeManager.createSub(userId, code)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe(compositeDisposable::add)
-                    .subscribe();
+                    .doOnSubscribe(compositeDisposable::add);
         } else {
-            storeManager.removeSub(userId, code)
+            return storeManager.removeSub(userId, code)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe(compositeDisposable::add)
-                    .subscribe();
+                    .doOnSubscribe(compositeDisposable::add);
         }
     }
 }
