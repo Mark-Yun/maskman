@@ -10,8 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/block_half"
         android:elevation="@dimen/block_half"
-        android:paddingTop="@dimen/block2"
-        android:paddingBottom="@dimen/block2"
         app:layout_constraintBottom_toTopOf="@+id/recycler_view"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -19,40 +17,12 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/block2"
+            android:paddingBottom="@dimen/block2"
             android:text="@string/desc_name"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guide2"
             app:layout_constraintStart_toEndOf="@+id/guide1"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/stock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/desc_stock"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guide3"
-            app:layout_constraintStart_toEndOf="@+id/guide2"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/dist"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/desc_dist"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guide4"
-            app:layout_constraintStart_toEndOf="@+id/guide3"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/stock_at"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/desc_stock_at"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guide5"
-            app:layout_constraintStart_toEndOf="@+id/guide4"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -90,12 +60,52 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="1" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/stock_at"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/block2"
+            android:paddingBottom="@dimen/block2"
+            android:text="@string/desc_stock_at"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guide5"
+            app:layout_constraintStart_toEndOf="@+id/guide4"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/stock"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/block2"
+            android:paddingBottom="@dimen/block2"
+            android:text="@string/desc_stock"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guide3"
+            app:layout_constraintStart_toEndOf="@+id/guide2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dist"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/block2"
+            android:paddingBottom="@dimen/block2"
+            android:text="@string/desc_dist"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guide4"
+            app:layout_constraintStart_toEndOf="@+id/guide3"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layoutAnimation="@anim/layout_animation_fall_down"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/column" />

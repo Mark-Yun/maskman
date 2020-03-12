@@ -24,6 +24,9 @@ import java.util.function.Consumer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by mark on 20. 3. 11.
@@ -33,6 +36,7 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
     private final List<Store> storeList;
     private final Location currentLocation;
     private final Consumer<String> onStoreSelect;
+    private RecyclerView recyclerView;
 
     StoreListAdapter(final Location currentLocation, final List<Store> storeList,
                      final Consumer<String> onStoreSelect) {
@@ -61,56 +65,77 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
         holder.stock.setText(StoreUtils.getStatusLabel(store.remain_stat));
         holder.stock.setBackgroundDrawable(context.getDrawable(StoreUtils.getStatusBackground(store.remain_stat)));
         holder.dist.setText(MapUtils.convertDistance(context, distance));
-        holder.stockAt.setText(DateUtils.convertCreatedAt(store.stock_at));
+        holder.stockAt.setText(DateUtils.convertTimeStamp(store.stock_at));
         holder.itemView.setOnClickListener(v -> onStoreSelect.accept(store.code));
     }
 
     void sortWithStock(final boolean desc) {
-        if (desc) {
-            storeList.sort((o1, o2) -> StoreUtils.convertStock(o1.remain_stat) - StoreUtils.convertStock(o2.remain_stat));
-        } else {
-            storeList.sort((o2, o1) -> StoreUtils.convertStock(o1.remain_stat) - StoreUtils.convertStock(o2.remain_stat));
-        }
+        Maybe.fromAction(() -> {
+            if (desc) {
+                storeList.sort((o1, o2) -> StoreUtils.convertStock(o1.remain_stat) - StoreUtils.convertStock(o2.remain_stat));
+            } else {
+                storeList.sort((o2, o1) -> StoreUtils.convertStock(o1.remain_stat) - StoreUtils.convertStock(o2.remain_stat));
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(this::notifyDataSetChangedWithAnimation)
+                .subscribe();
     }
 
     void sortWithDistance(final boolean desc) {
-        if (desc) {
-            storeList.sort((o1, o2) -> (int) (currentLocation.distanceTo(MapUtils.locationFrom(o1.lat, o1.lng))
-                    - currentLocation.distanceTo(MapUtils.locationFrom(o2.lat, o2.lng))));
-        } else {
-            storeList.sort((o2, o1) -> (int) (currentLocation.distanceTo(MapUtils.locationFrom(o1.lat, o1.lng))
-                    - currentLocation.distanceTo(MapUtils.locationFrom(o2.lat, o2.lng))));
-        }
-
-        notifyDataSetChanged();
+        Maybe.fromAction(() -> {
+            if (desc) {
+                storeList.sort((o1, o2) -> (int) (currentLocation.distanceTo(MapUtils.locationFrom(o1.lat, o1.lng))
+                        - currentLocation.distanceTo(MapUtils.locationFrom(o2.lat, o2.lng))));
+            } else {
+                storeList.sort((o2, o1) -> (int) (currentLocation.distanceTo(MapUtils.locationFrom(o1.lat, o1.lng))
+                        - currentLocation.distanceTo(MapUtils.locationFrom(o2.lat, o2.lng))));
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(this::notifyDataSetChangedWithAnimation)
+                .subscribe();
     }
 
     void sortWithStockAt(final boolean desc) {
-
-        if (desc) {
-            storeList.sort((o1, o2) -> {
-                try {
-                    return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
-                } catch (NullPointerException e) {
-                    return 0;
-                }
-            });
-        } else {
-            storeList.sort((o2, o1) -> {
-                try {
-                    return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
-                } catch (NullPointerException e) {
-                    return 0;
-                }
-            });
-        }
-
-        notifyDataSetChanged();
+        Maybe.fromAction(() -> {
+            if (desc) {
+                storeList.sort((o1, o2) -> {
+                    try {
+                        return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
+                    } catch (NullPointerException e) {
+                        return 0;
+                    }
+                });
+            } else {
+                storeList.sort((o2, o1) -> {
+                    try {
+                        return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
+                    } catch (NullPointerException e) {
+                        return 0;
+                    }
+                });
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(this::notifyDataSetChangedWithAnimation)
+                .subscribe();
     }
 
     @Override
     public int getItemCount() {
         return storeList.size();
+    }
+
+    private void notifyDataSetChangedWithAnimation() {
+        notifyDataSetChanged();
+        recyclerView.scheduleLayoutAnimation();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull final RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

@@ -190,7 +190,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/block1">
 
-                <Chronometer
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/stock_at"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -225,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/block1">
 
-                <Chronometer
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/created_at"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

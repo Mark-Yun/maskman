@@ -1,12 +1,10 @@
 package com.mark.zumo.client.customer.view.store.detail;
 
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Chronometer;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,14 +18,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
-import com.mark.zumo.client.customer.bloc.NotificationBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.function.Consumer;
 
 import butterknife.BindView;
@@ -48,8 +43,8 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.type) AppCompatTextView type;
     @BindView(R.id.addr) AppCompatTextView addr;
     @BindView(R.id.stock) AppCompatTextView stock;
-    @BindView(R.id.stock_at) Chronometer stockAt;
-    @BindView(R.id.created_at) Chronometer createdAt;
+    @BindView(R.id.stock_at) AppCompatTextView stockAt;
+    @BindView(R.id.created_at) AppCompatTextView createdAt;
     @BindView(R.id.close) AppCompatImageView close;
 
     private MainViewBLOC mainViewBLOC;
@@ -112,6 +107,7 @@ public class StoreDetailFragment extends Fragment {
     }
 
     private void onLoadSubscription(final boolean isChecked) {
+        Log.d(TAG, "onLoadSubscription: isChecked=" + isChecked);
         subscription.setEnabled(true);
         subscription.setChecked(isChecked);
     }
@@ -121,8 +117,14 @@ public class StoreDetailFragment extends Fragment {
             return true;
         }
 
+        Log.d(TAG, "onSubscriptionClicked: ");
+
         String code = getArguments().getString(CODE_KEY);
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (firebaseUser == null) {
+            return true;
+        }
 
         subscription.setEnabled(false);
         subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked());
@@ -134,23 +136,8 @@ public class StoreDetailFragment extends Fragment {
         type.setText(StoreUtils.getTypeLabel(getContext(), store.type));
         addr.setText(store.addr);
         stock.setText(StoreUtils.getStockLabel(getContext(), store.remain_stat));
-        final Date stockAtDate = DateUtils.createDate(store.stock_at);
-        if (stockAtDate != null) {
-            updateChronometer(stockAt, stockAtDate);
-        }
-
-        final Date createAtDate = DateUtils.createDate(store.create_at);
-        if (createAtDate != null) {
-            updateChronometer(createdAt, createAtDate);
-        }
-    }
-
-    private void updateChronometer(final Chronometer chronometer, final Date createAtDate) {
-        long time = createAtDate.getTime();
-        long currentTime = Calendar.getInstance().getTimeInMillis();
-        chronometer.setFormat("%s 전");
-        chronometer.setBase(SystemClock.elapsedRealtime() - (currentTime - time));
-        chronometer.start();
+        stockAt.setText(DateUtils.convertTimeStamp(store.stock_at));
+        createdAt.setText(DateUtils.convertTimeStamp(store.create_at));
     }
 
     @OnClick(R.id.close)

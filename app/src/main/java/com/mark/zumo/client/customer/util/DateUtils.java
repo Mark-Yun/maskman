@@ -29,8 +29,8 @@ public class DateUtils {
         return null;
     }
 
-    public static String convertCreatedAt(final String createdDateString) {
-        Log.d(TAG, "convertCreatedAt: createdDateString=" + createdDateString);
+    public static String convertTimeStamp(final String createdDateString) {
+        Log.d(TAG, "convertTimeStamp: createdDateString=" + createdDateString);
         final Date createdDate = createDate(createdDateString);
         if (createdDate == null) {
             return "";
@@ -43,9 +43,23 @@ public class DateUtils {
         Calendar gapCalendar = Calendar.getInstance();
         gapCalendar.setTimeInMillis(currentTime.getTimeInMillis() - calendar.getTimeInMillis());
 
+        int gapDay = gapCalendar.get(Calendar.DAY_OF_YEAR);
         int gapHour = gapCalendar.get(Calendar.HOUR_OF_DAY);// gets hour in 24h format
         int gapMinute = gapCalendar.get(Calendar.MINUTE);// gets month number, NOTE this is zero based!
         int gapSeconds = gapCalendar.get(Calendar.SECOND);// gets month number, NOTE this is zero based!
-        return String.format("%d시간 %d분 %d초 전", gapHour, gapMinute, gapSeconds);
+
+        if (gapDay > 1) {
+            return String.format("%d일 전", gapDay-1);
+        }
+
+        if (gapHour > 0) {
+            return String.format("%d시간 %d분 전", gapHour, gapMinute);
+        }
+
+        if (gapMinute > 0) {
+            return String.format("%d분 전", gapMinute);
+        }
+
+        return String.format("%d초 전", gapSeconds);
     }
 }

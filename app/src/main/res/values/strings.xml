@@ -13,7 +13,7 @@
     <string name="desc_addr">주소</string>
     <string name="desc_stock_at">입고 시간</string>
     <string name="desc_stock_at_to">남은 시간</string>
-    <string name="desc_stock">재고 상태</string>
+    <string name="desc_stock">재고</string>
     <string name="desc_created_at">업데이트 된 시간</string>
     <string name="desc_sub_stock_in">재고 알림</string>
     <string name="desc_dist">거리</string>
