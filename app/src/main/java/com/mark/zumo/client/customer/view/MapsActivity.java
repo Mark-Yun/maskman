@@ -248,6 +248,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (!FilterSettingUtils.getFilterSetting(this, store.remain_stat)) {
                 continue;
             }
+            count++;
             createMarker(store)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -256,7 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .subscribe();
         }
 
-        listButton.setText(getString(R.string.list_button_text, ++count));
+        listButton.setText(getString(R.string.list_button_text, count));
     }
 
     @NotNull

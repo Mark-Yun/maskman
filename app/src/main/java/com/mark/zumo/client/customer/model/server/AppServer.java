@@ -25,6 +25,9 @@ public interface AppServer {
                                       @Query("lat1") double latitude2,
                                       @Query("lng1") double longitude2);
 
+    @GET("store/{code}")
+    Maybe<Store> queryStore(@Path("code") String code);
+
     @GET("sub")
     Maybe<Sub> querySub(@Query("user_id") final String user_id,
                         @Query("code") final String code);
@@ -35,9 +38,9 @@ public interface AppServer {
     @POST("sub")
     Maybe<Sub> createSub(@Body final Sub sub);
 
-    @DELETE("sub/{user_id}/{code}")
-    Maybe<Sub> deleteSub(@Path("user_id") final String user_id,
-                         @Path("code") final String code);
+    @DELETE("sub")
+    Maybe<Sub> deleteSub(@Query("user_id") final String user_id,
+                         @Query("code") final String code);
 
     @POST("token")
     Maybe<Token> createToken(@Body Token token);

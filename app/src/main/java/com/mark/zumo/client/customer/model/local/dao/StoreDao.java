@@ -20,6 +20,9 @@ public interface StoreDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertStoreList(final List<Store> storeList);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertStore(final Store store);
+
     @Query("SELECT * FROM Store WHERE lat >= :latitude2 " +
             "AND lng >= :longitude2 " +
             "AND lat <= :latitude1 " +

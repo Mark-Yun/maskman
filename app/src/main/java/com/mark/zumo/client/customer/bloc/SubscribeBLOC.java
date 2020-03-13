@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.mark.zumo.client.customer.entity.Sub;
+import com.mark.zumo.client.customer.entity.Token;
 import com.mark.zumo.client.customer.model.StoreManager;
 
 import io.reactivex.Maybe;
@@ -45,5 +46,12 @@ public class SubscribeBLOC extends AndroidViewModel {
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe(compositeDisposable::add);
         }
+    }
+
+    public Maybe<Token> registerToken(final String userId) {
+
+        return storeManager.maybeFirebaseToken()
+                .flatMap(tokenValue -> storeManager.registerPushToken(userId, tokenValue))
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }

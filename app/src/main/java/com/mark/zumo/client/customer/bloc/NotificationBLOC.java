@@ -36,9 +36,9 @@ public class NotificationBLOC {
     }
 
     public void notifyNewStock(final String code) {
-        storeManager.observableStore(code)
-                .firstElement()
+        storeManager.queryStore(code)
                 .doOnSuccess(this::notifyNewStore)
+                .doOnError(throwable -> Log.e(TAG, "notifyNewStock: ", throwable))
                 .subscribe();
     }
 

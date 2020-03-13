@@ -120,7 +120,47 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/block1">
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/copy"
+                    android:layout_width="@dimen/block3"
+                    android:layout_height="0dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/baseline_file_copy_black_48dp"
+                    android:tint="@color/quantum_grey800"
+                    app:layout_constraintBottom_toBottomOf="@+id/addr"
+                    app:layout_constraintDimensionRatio="H, 1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/addr" />
+
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/block_half"
+                    android:maxLines="5"
+                    android:text="addressssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/copy"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/guide3"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/navi"
+                    android:layout_width="@dimen/block3"
+                    android:layout_height="0dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/baseline_directions_black_48dp"
+                    android:tint="@color/quantum_grey800"
+                    app:layout_constraintBottom_toBottomOf="@+id/addr"
+                    app:layout_constraintDimensionRatio="H, 1:1"
+                    android:layout_marginStart="@dimen/block1"
+                    app:layout_constraintStart_toEndOf="@+id/addr_desc"
+                    app:layout_constraintTop_toTopOf="@+id/addr" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addr_desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/desc_addr"
@@ -128,18 +168,6 @@
                     app:layout_constraintEnd_toStartOf="@+id/addr"
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/addr"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="address"
-                    android:textColor="@android:color/black"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/guide3"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.constraintlayout.widget.Guideline

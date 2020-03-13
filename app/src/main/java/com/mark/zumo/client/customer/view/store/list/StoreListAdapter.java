@@ -100,7 +100,7 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
     void sortWithStockAt(final boolean desc) {
         Maybe.fromAction(() -> {
             if (desc) {
-                storeList.sort((o1, o2) -> {
+                storeList.sort((o2, o1) -> {
                     try {
                         return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
                     } catch (NullPointerException e) {
@@ -108,7 +108,7 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
                     }
                 });
             } else {
-                storeList.sort((o2, o1) -> {
+                storeList.sort((o1, o2) -> {
                     try {
                         return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
                     } catch (NullPointerException e) {

@@ -2,6 +2,7 @@ package com.mark.zumo.client.customer.service;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -57,8 +58,8 @@ public class FCMService extends FirebaseMessagingService {
     }
 
     private void handleData(final Map<String, String> data) {
-        final String type = data.get("type");
-        Log.d(TAG, "handleData: type=" + type);
+        final String type = data.get("notification_type");
+        Log.d(TAG, "handleData: notification_type=" + type);
 
         if (TextUtils.isEmpty(type)) {
             return;

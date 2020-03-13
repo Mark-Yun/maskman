@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 28
@@ -7,8 +8,8 @@ android {
         applicationId "com.mark.zumo.client.customer"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 210020003
-        versionName "2.0.3"
+        versionCode 21002004
+        versionName "2.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -82,6 +83,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.firebase:firebase-messaging:20.1.2'
     implementation 'com.google.firebase:firebase-analytics:17.2.3'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
 
     //google play services
     implementation 'com.google.android.gms:play-services-location:17.0.0'

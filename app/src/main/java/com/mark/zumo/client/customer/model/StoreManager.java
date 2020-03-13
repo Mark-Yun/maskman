@@ -2,6 +2,7 @@ package com.mark.zumo.client.customer.model;
 
 import android.content.Context;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.entity.Sub;
@@ -67,6 +68,12 @@ public enum StoreManager {
                 .subscribeOn(Schedulers.io());
     }
 
+    public Maybe<Store> queryStore(final String code) {
+        return appServer.queryStore(code)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(storeDao::insertStore);
+    }
+
     public Observable<Boolean> observableSub(final String userId, final String code) {
         return subDao.flowableSub(userId, code)
                 .distinctUntilChanged()
@@ -90,5 +97,15 @@ public enum StoreManager {
     public Maybe<Token> registerPushToken(final String userId, final String tokenValue) {
         return appServer.createToken(new Token(userId, tokenValue))
                 .subscribeOn(Schedulers.io());
+    }
+
+    public Maybe<String> maybeFirebaseToken() {
+        return Maybe.create(emitter -> {
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
+                String token = instanceIdResult.getToken();
+                emitter.onSuccess(token);
+                emitter.onComplete();
+            }).addOnFailureListener(emitter::onError);
+        });
     }
 }

@@ -51,6 +51,11 @@ public enum LocationManager {
     public Maybe<Location> maybeCurrentLocation() {
         return Maybe.create(emitter -> fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(location -> {
+                    if (location == null) {
+                        emitter.onError(new NullPointerException("location is null"));
+                        return;
+                    }
+
                     currentLocation = location;
                     emitter.onSuccess(location);
                     emitter.onComplete();

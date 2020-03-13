@@ -44,7 +44,7 @@ public class StoreListActivity extends AppCompatActivity {
     private MainViewBLOC mainViewBLOC;
     private StoreListAdapter storeListAdapter;
 
-    private boolean stockSort, stockAtSort, distSort;
+    private boolean stockSort, stockAtSort = true, distSort = true;
     private String stockText, stockAtText, distText;
 
     public static void startActivity(final Activity activity, List<Store> storeList) {
