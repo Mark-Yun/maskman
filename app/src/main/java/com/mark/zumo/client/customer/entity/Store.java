@@ -19,6 +19,8 @@ public class Store {
     public String stock_at;
     public String remain_stat;
     public String create_at;
+    public String tel; //xx-xxx-xxxx 형식, 없으면 null
+    public int open; // 1: 영업중, 0:영업종료, -1:영업시간정보없음
 
     public static Store testData() {
         Store store = new Store();

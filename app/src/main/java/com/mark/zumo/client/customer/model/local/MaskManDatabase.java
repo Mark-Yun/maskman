@@ -14,7 +14,7 @@ import com.mark.zumo.client.customer.model.local.dao.SubDao;
 @Database(
         entities = {
                 Store.class, Sub.class
-        }, version = 2)
+        }, version = 3)
 
 public abstract class MaskManDatabase extends RoomDatabase {
     public abstract StoreDao storeDao();
