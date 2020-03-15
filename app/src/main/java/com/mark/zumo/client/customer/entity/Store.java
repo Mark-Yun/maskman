@@ -1,6 +1,9 @@
 package com.mark.zumo.client.customer.entity;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -30,6 +33,15 @@ public class Store {
         store.name = "test store";
         store.type = "03";
         return store;
+    }
+
+    @Override
+    public boolean equals(@Nullable final Object obj) {
+        if (obj instanceof Store) {
+            return TextUtils.equals(this.code, ((Store) obj).code);
+        } else {
+            return false;
+        }
     }
 
     public enum Stock {

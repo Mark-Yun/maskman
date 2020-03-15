@@ -19,6 +19,8 @@ import com.mark.zumo.client.customer.view.SplashActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
+
 /**
  * Created by mark on 20. 3. 12.
  */
@@ -64,14 +66,22 @@ public class NotificationBLOC {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @NotNull
     private NotificationChannel createNotificationChannel() {
-        return new NotificationChannel(CHANNEL_ID, "마스크 재입고 알림", NotificationManager.IMPORTANCE_HIGH);
+        return new NotificationChannel(CHANNEL_ID, "마스크 입고 알림", NotificationManager.IMPORTANCE_HIGH);
     }
 
     private Notification createNewStockNotification(final String name, final String code) {
         Icon icon = Icon.createWithResource(context, R.mipmap.temp_ic);
         Intent intent = new Intent(context, SplashActivity.class);
         intent.putExtra(SplashActivity.KEY_CODE, code);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        int requestCode = 0;
+        try {
+            requestCode = Integer.parseInt(code);
+        } catch (NumberFormatException e) {
+            requestCode = new Random().nextInt();
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode,
+                intent, PendingIntent.FLAG_ONE_SHOT);
 
         final Notification.Builder builder = new Notification.Builder(context)
                 .setLargeIcon(icon)
