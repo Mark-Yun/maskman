@@ -8,8 +8,8 @@ android {
         applicationId "com.mark.zumo.client.customer"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 210020004
-        versionName "2.0.4"
+        versionCode 210020005
+        versionName "2.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
