@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -55,7 +55,7 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.stock) AppCompatTextView stock;
     @BindView(R.id.stock_at) AppCompatTextView stockAt;
     @BindView(R.id.created_at) AppCompatTextView createdAt;
-    @BindView(R.id.close) AppCompatImageView close;
+    @BindView(R.id.close) AppCompatImageButton close;
 
     private MainViewBLOC mainViewBLOC;
     private SubscribeBLOC subscribeBLOC;

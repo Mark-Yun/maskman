@@ -1,10 +1,13 @@
 package com.mark.zumo.client.customer.util;
 
+import android.content.Context;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import com.mark.zumo.client.customer.R;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -27,6 +30,39 @@ public class DateUtils {
             Log.e(TAG, "createDate: ", e);
         }
         return null;
+    }
+
+    public static String getTodayPartition(final Context context) {
+        Calendar currentCalendar = Calendar.getInstance(Locale.getDefault());
+        return getDayPartition(context, currentCalendar);
+    }
+
+    private static String getDayPartition(final Context context, final Calendar calendar) {
+        int today = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (today) {
+            case Calendar.MONDAY:
+                return context.getString(R.string.day_partition_1);
+            case Calendar.TUESDAY:
+                return context.getString(R.string.day_partition_2);
+            case Calendar.WEDNESDAY:
+                return context.getString(R.string.day_partition_3);
+            case Calendar.THURSDAY:
+                return context.getString(R.string.day_partition_4);
+            case Calendar.FRIDAY:
+                return context.getString(R.string.day_partition_5);
+            case Calendar.SATURDAY:
+                return context.getString(R.string.day_partition_6);
+            case Calendar.SUNDAY:
+                return context.getString(R.string.day_partition_6);
+            default:
+                return "";
+        }
+    }
+
+    public static String getTomorrowPartition(final Context context) {
+        Calendar tomorrowCalendar = Calendar.getInstance(Locale.getDefault());
+        tomorrowCalendar.add(Calendar.DAY_OF_WEEK, 1);
+        return getDayPartition(context, tomorrowCalendar);
     }
 
     public static String convertTimeStamp(final String createdDateString) {

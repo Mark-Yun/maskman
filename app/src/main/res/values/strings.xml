@@ -41,4 +41,14 @@
 
     <string name="distance_description_under_100m">100m 이내</string>
     <string name="distance_format_kilo_meter">%skm</string>
+
+    <string name="purchase_today">오늘 구매대상: [%s]</string>
+    <string name="purchase_tomorrow">내일 구매대상: [%s]</string>
+
+    <string name="day_partition_1">1년생, 6년생</string>
+    <string name="day_partition_2">2년생, 7년생</string>
+    <string name="day_partition_3">3년생, 8년생</string>
+    <string name="day_partition_4">4년생, 9년생</string>
+    <string name="day_partition_5">5년생, 0년생</string>
+    <string name="day_partition_6">주중에 못 산 사람</string>
 </resources>

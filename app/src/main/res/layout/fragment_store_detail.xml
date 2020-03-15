@@ -284,7 +284,8 @@
 
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:scaleType="fitXY"
             android:id="@+id/close"
             android:layout_width="@dimen/block3"
             android:layout_height="@dimen/block3"

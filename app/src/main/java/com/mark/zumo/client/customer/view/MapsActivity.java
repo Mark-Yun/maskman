@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,10 +27,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.FilterSettingUtils;
 import com.mark.zumo.client.customer.util.MapUtils;
 import com.mark.zumo.client.customer.view.store.detail.StoreDetailFragment;
@@ -59,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final float MIN_ZOOM = 13f;
+
     @BindView(R.id.list_button) MaterialButton listButton;
 
     private MainViewBLOC mainViewBLOC;
@@ -128,6 +132,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         initUiSettings(googleMap);
+        showGuideToast();
+    }
+
+    private void showGuideToast() {
+        String todayPartition = DateUtils.getTodayPartition(this);
+        String tomorrowPartition = DateUtils.getTomorrowPartition(this);
+
+        String message = getString(R.string.purchase_today, todayPartition) + "\n"
+                + getString(R.string.purchase_tomorrow, tomorrowPartition);
+
+        Snackbar.make(findViewById(R.id.map), message, Snackbar.LENGTH_LONG)
+                .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                .setAction(android.R.string.ok, this::mark)
+                .show();
+    }
+
+    private void mark(View view) {
+
     }
 
     private void initUiSettings(final GoogleMap googleMap) {
@@ -169,9 +191,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getSupportFragmentManager().beginTransaction()
                 .remove(fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+                .runOnCommit(() -> findViewById(R.id.store_detail).setVisibility(View.GONE))
                 .commit();
-
-        findViewById(R.id.store_detail).setVisibility(View.GONE);
     }
 
     private void onCameraIdle() {
