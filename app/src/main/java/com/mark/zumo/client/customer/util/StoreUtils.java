@@ -1,6 +1,7 @@
 package com.mark.zumo.client.customer.util;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import androidx.annotation.ColorRes;
@@ -8,11 +9,41 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 
 import com.mark.zumo.client.customer.R;
+import com.mark.zumo.client.customer.entity.Store;
 
 /**
  * Created by mark on 20. 3. 11.
  */
 public class StoreUtils {
+
+    public static String getOpenStatusLabel(final Context context,
+                                            @Store.OpenStatus final int status) {
+        switch (status) {
+            case Store.OPENED:
+                return context.getString(R.string.opened);
+            case Store.CLOSED:
+                return context.getString(R.string.closed);
+            case Store.UNKNOWN:
+                return context.getString(R.string.unknown);
+            default:
+                return context.getString(R.string.unknown);
+        }
+    }
+
+    public static Drawable getOpenStatusIcon(final Context context,
+                                             @Store.OpenStatus final int status) {
+        switch (status) {
+            case Store.OPENED:
+                return context.getDrawable(R.drawable.open_ic_opened);
+            case Store.CLOSED:
+                return context.getDrawable(R.drawable.open_ic_closed);
+            case Store.UNKNOWN:
+                return context.getDrawable(R.drawable.open_ic_unknown);
+            default:
+                return context.getDrawable(R.drawable.open_ic_unknown);
+        }
+    }
+
     public static String getTypeLabel(final Context context, final String type) {
         switch (type) {
             case "01":
@@ -25,32 +56,32 @@ public class StoreUtils {
         return "";
     }
 
-    public static String getStockLabel(final Context context, final String stock) {
+    public static String getStockLabel(final Context context, @Store.Stock final String stock) {
         switch (stock) {
-            case "plenty":
+            case Store.PLENTY:
                 return context.getString(R.string.stock_plenty);
-            case "some":
+            case Store.SOME:
                 return context.getString(R.string.stock_some);
-            case "few":
+            case Store.FEW:
                 return context.getString(R.string.stock_few);
-            case "empty":
+            case Store.EMPTY:
                 return context.getString(R.string.stock_empty);
         }
         return "";
     }
 
     @DrawableRes
-    public static int getTypeDrawable(final String type) {
+    public static int getTypeDrawable(@Store.Type final String type) {
         if (TextUtils.isEmpty(type)) {
             return R.drawable.ic_local_hospital_black_24dp;
         }
 
         switch (type) {
-            case "01":
+            case Store.PHARMACY:
                 return R.drawable.ic_local_hospital_black_24dp;
-            case "02":
+            case Store.POST:
                 return R.drawable.ic_post;
-            case "03":
+            case Store.NH:
                 return R.drawable.ic_nh;
             default:
                 return R.drawable.ic_local_hospital_black_24dp;
@@ -58,38 +89,38 @@ public class StoreUtils {
     }
 
     @ColorRes
-    public static int getStatusColor(final String status) {
-        if (TextUtils.isEmpty(status)) {
+    public static int getStatusColor(@Store.Stock final String stock) {
+        if (TextUtils.isEmpty(stock)) {
             return R.color.empty;
         }
 
-        switch (status) {
-            case MapUtils.PLENTY:
+        switch (stock) {
+            case Store.PLENTY:
                 return R.color.plenty;
-            case MapUtils.SOME:
+            case Store.SOME:
                 return R.color.some;
-            case MapUtils.FEW:
+            case Store.FEW:
                 return R.color.few;
-            case MapUtils.EMPTY:
+            case Store.EMPTY:
             default:
                 return R.color.empty;
         }
     }
 
     @DrawableRes
-    public static int getStatusBackground(final String status) {
-        if (TextUtils.isEmpty(status)) {
+    public static int getStatusBackground(@Store.Stock final String stock) {
+        if (TextUtils.isEmpty(stock)) {
             return R.drawable.corner_background_empty;
         }
 
-        switch (status) {
-            case MapUtils.PLENTY:
+        switch (stock) {
+            case Store.PLENTY:
                 return R.drawable.corner_background_plenty;
-            case MapUtils.SOME:
+            case Store.SOME:
                 return R.drawable.corner_background_some;
-            case MapUtils.FEW:
+            case Store.FEW:
                 return R.drawable.corner_background_few;
-            case MapUtils.EMPTY:
+            case Store.EMPTY:
                 return R.drawable.corner_background_empty;
             default:
                 return R.drawable.corner_background_empty;
@@ -97,38 +128,38 @@ public class StoreUtils {
     }
 
     @StringRes
-    public static int getStatusLabel(final String status) {
-        if (TextUtils.isEmpty(status)) {
+    public static int getStatusLabel(@Store.Stock final String stock) {
+        if (TextUtils.isEmpty(stock)) {
             return R.string.empty;
         }
 
-        switch (status) {
-            case MapUtils.PLENTY:
+        switch (stock) {
+            case Store.PLENTY:
                 return R.string.plenty;
-            case MapUtils.SOME:
+            case Store.SOME:
                 return R.string.some;
-            case MapUtils.FEW:
+            case Store.FEW:
                 return R.string.few;
-            case MapUtils.EMPTY:
+            case Store.EMPTY:
                 return R.string.empty;
             default:
                 return R.string.empty;
         }
     }
 
-    public static int convertStock(final String status) {
-        if (TextUtils.isEmpty(status)) {
+    public static int convertStock(@Store.Stock final String stock) {
+        if (TextUtils.isEmpty(stock)) {
             return 0;
         }
 
-        switch (status) {
-            case MapUtils.PLENTY:
+        switch (stock) {
+            case Store.PLENTY:
                 return 100;
-            case MapUtils.SOME:
+            case Store.SOME:
                 return 30;
-            case MapUtils.FEW:
+            case Store.FEW:
                 return 2;
-            case MapUtils.EMPTY:
+            case Store.EMPTY:
                 return 0;
 
             default:

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
+import com.mark.zumo.client.customer.model.ConfigManager;
 import com.mark.zumo.client.customer.util.Navigator;
 import com.mark.zumo.client.customer.view.permission.PermissionActivity;
 import com.mark.zumo.client.customer.view.permission.Permissions;
@@ -109,6 +110,10 @@ public class SplashActivity extends AppCompatActivity {
                         completeSubList = true;
                         startMapsActivityIfPossible();
                     })
+                    .subscribe();
+
+            ConfigManager.INSTANCE
+                    .fetchConfig()
                     .subscribe();
         }
     }

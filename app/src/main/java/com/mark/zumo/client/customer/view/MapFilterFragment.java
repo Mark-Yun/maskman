@@ -53,21 +53,21 @@ public class MapFilterFragment extends Fragment {
     }
 
     private void inflate() {
-        checkboxPlenty.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.Stock.PLENTY.value));
+        checkboxPlenty.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.PLENTY));
         checkboxPlenty.setOnCheckedChangeListener((buttonView, isChecked) ->
-                FilterSettingUtils.setFilterSetting(getContext(), Store.Stock.PLENTY.value, isChecked)
+                FilterSettingUtils.setFilterSetting(getContext(), Store.PLENTY, isChecked)
         );
-        checkboxSome.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.Stock.SOME.value));
+        checkboxSome.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.SOME));
         checkboxSome.setOnCheckedChangeListener((buttonView, isChecked) ->
-                FilterSettingUtils.setFilterSetting(getContext(), Store.Stock.SOME.value, isChecked)
+                FilterSettingUtils.setFilterSetting(getContext(), Store.SOME, isChecked)
         );
-        checkboxFew.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.Stock.FEW.value));
+        checkboxFew.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.FEW));
         checkboxFew.setOnCheckedChangeListener((buttonView, isChecked) ->
-                FilterSettingUtils.setFilterSetting(getContext(), Store.Stock.FEW.value, isChecked)
+                FilterSettingUtils.setFilterSetting(getContext(), Store.FEW, isChecked)
         );
-        checkboxEmpty.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.Stock.EMPTY.value));
+        checkboxEmpty.setChecked(FilterSettingUtils.getFilterSetting(getContext(), Store.EMPTY));
         checkboxEmpty.setOnCheckedChangeListener((buttonView, isChecked) ->
-                FilterSettingUtils.setFilterSetting(getContext(), Store.Stock.EMPTY.value, isChecked)
+                FilterSettingUtils.setFilterSetting(getContext(), Store.EMPTY, isChecked)
         );
     }
 }

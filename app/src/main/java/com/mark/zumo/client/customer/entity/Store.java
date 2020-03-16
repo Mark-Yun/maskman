@@ -1,9 +1,9 @@
 package com.mark.zumo.client.customer.entity;
 
-import android.text.TextUtils;
-
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -12,6 +12,20 @@ import androidx.room.PrimaryKey;
  */
 @Entity
 public class Store {
+
+    public static final String PHARMACY = "0";
+    public static final String POST = "1";
+    public static final String NH = "2";
+
+    public static final int OPENED = 1;
+    public static final int CLOSED = 0;
+    public static final int UNKNOWN = -1;
+
+    public static final String PLENTY = "plenty";
+    public static final String SOME = "some";
+    public static final String FEW = "few";
+    public static final String EMPTY = "empty";
+
     @PrimaryKey @NonNull
     public String code;
     public String name;
@@ -37,23 +51,42 @@ public class Store {
 
     @Override
     public boolean equals(@Nullable final Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
         if (obj instanceof Store) {
-            return TextUtils.equals(this.code, ((Store) obj).code);
+            return toString().equals(obj.toString());
         } else {
             return false;
         }
     }
 
-    public enum Stock {
-        PLENTY("plenty"),
-        SOME("some"),
-        FEW("few"),
-        EMPTY("empty");
+    @NonNull
+    @Override
+    public String toString() {
+        return "[" + this.getClass().getSimpleName() + "]" +
+                " code=" + code +
+                " name=" + name +
+                " addr=" + addr +
+                " lat=" + lat +
+                " lng=" + lng +
+                " stock_at=" + stock_at +
+                " remain_stat=" + remain_stat +
+                " create_at=" + create_at +
+                " tel=" + tel +
+                " open=" + open;
+    }
 
-        public final String value;
+    @IntDef({OPENED, CLOSED, UNKNOWN})
+    public @interface OpenStatus {
+    }
 
-        Stock(final String value) {
-            this.value = value;
-        }
+    @StringDef({PLENTY, SOME, FEW, EMPTY})
+    public @interface Stock {
+    }
+
+    @StringDef({PHARMACY, POST, NH})
+    public @interface Type {
     }
 }

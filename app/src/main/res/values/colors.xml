@@ -10,4 +10,8 @@
     <color name="some">#C7B135</color>
     <color name="few">#8B1616</color>
     <color name="empty">#707070</color>
+
+    <color name="opened">@android:color/holo_green_light</color>
+    <color name="closed">@android:color/holo_red_light</color>
+    <color name="unknown">@android:color/darker_gray</color>
 </resources>

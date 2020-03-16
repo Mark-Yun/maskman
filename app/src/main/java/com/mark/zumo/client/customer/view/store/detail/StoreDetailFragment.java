@@ -3,7 +3,11 @@ package com.mark.zumo.client.customer.view.store.detail;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +35,7 @@ import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.model.ConfigManager;
 import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
 
@@ -56,6 +63,9 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.stock_at) AppCompatTextView stockAt;
     @BindView(R.id.created_at) AppCompatTextView createdAt;
     @BindView(R.id.close) AppCompatImageButton close;
+    @BindView(R.id.open_status) Chip openStatus;
+    @BindView(R.id.phone_number) AppCompatTextView phoneNumber;
+    @BindView(R.id.phone_number_container) ConstraintLayout phoneNumberContainer;
 
     private MainViewBLOC mainViewBLOC;
     private SubscribeBLOC subscribeBLOC;
@@ -118,6 +128,12 @@ public class StoreDetailFragment extends Fragment {
         }
 
         subscription.setOnClickListener(this::onSubscriptionClicked);
+
+        boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
+        openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
+
+        boolean isPhoneNumberEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.PHONE_NUMBER);
+        phoneNumberContainer.setVisibility(isPhoneNumberEnabled ? View.VISIBLE : View.GONE);
     }
 
     private void onLoadSubscription(final boolean isChecked) {
@@ -197,6 +213,10 @@ public class StoreDetailFragment extends Fragment {
         stock.setText(StoreUtils.getStockLabel(getContext(), store.remain_stat));
         stockAt.setText(DateUtils.convertTimeStamp(store.stock_at));
         createdAt.setText(DateUtils.convertTimeStamp(store.create_at));
+        openStatus.setText(StoreUtils.getOpenStatusLabel(getContext(), store.open));
+        openStatus.setChipIcon(StoreUtils.getOpenStatusIcon(getContext(), store.open));
+        phoneNumberContainer.setVisibility(TextUtils.isEmpty(store.tel) ? View.GONE : View.VISIBLE);
+        phoneNumber.setText(Html.fromHtml("<u>" + store.tel + "</u>", Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
     }
 
     @OnClick(R.id.close)
@@ -245,5 +265,10 @@ public class StoreDetailFragment extends Fragment {
                 .create();
 
         alertDialog.show();
+    }
+
+    @OnClick(R.id.phone_number)
+    public void onPhoneNumberClicked() {
+        startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + store.tel)));
     }
 }

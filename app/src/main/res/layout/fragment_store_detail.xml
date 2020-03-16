@@ -63,11 +63,12 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="name"
+                    android:text="nameeeeeeeeeeeeeeeeeeee"
                     android:textColor="@android:color/black"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/open_status"
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintStart_toEndOf="@+id/guide1"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -78,6 +79,23 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     app:layout_constraintGuide_percent="0.33" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/open_status"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/block2"
+                    android:text="@string/unknown"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    app:chipIcon="@drawable/open_ic_unknown"
+                    app:chipIconSize="@dimen/block2"
+                    app:iconEndPadding="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toEndOf="@+id/name"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -130,7 +148,22 @@
                     app:layout_constraintBottom_toBottomOf="@+id/addr"
                     app:layout_constraintDimensionRatio="H, 1:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/addr" />
+                    app:layout_constraintTop_toTopOf="@+id/addr"
+                    app:tint="@android:color/darker_gray" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/navi"
+                    android:layout_width="@dimen/block3"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="@dimen/block1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/baseline_directions_black_48dp"
+                    android:tint="@color/quantum_grey800"
+                    app:layout_constraintBottom_toBottomOf="@+id/addr"
+                    app:layout_constraintDimensionRatio="H, 1:1"
+                    app:layout_constraintStart_toEndOf="@+id/addr_desc"
+                    app:layout_constraintTop_toTopOf="@+id/addr"
+                    app:tint="@android:color/darker_gray" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/addr"
@@ -145,19 +178,6 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/guide3"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/navi"
-                    android:layout_width="@dimen/block3"
-                    android:layout_height="0dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/baseline_directions_black_48dp"
-                    android:tint="@color/quantum_grey800"
-                    app:layout_constraintBottom_toBottomOf="@+id/addr"
-                    app:layout_constraintDimensionRatio="H, 1:1"
-                    android:layout_marginStart="@dimen/block1"
-                    app:layout_constraintStart_toEndOf="@+id/addr_desc"
-                    app:layout_constraintTop_toTopOf="@+id/addr" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/addr_desc"
@@ -207,6 +227,42 @@
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guide4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.33" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/phone_number_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/block1">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/desc_phone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/phone_number"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/phone_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="000-000-0000"
+                    android:textColor="@android:color/holo_blue_dark"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toEndOf="@+id/guide7"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guide7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -285,7 +341,6 @@
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:scaleType="fitXY"
             android:id="@+id/close"
             android:layout_width="@dimen/block3"
             android:layout_height="@dimen/block3"
@@ -293,6 +348,7 @@
             android:layout_marginTop="@dimen/block2"
             android:background="@null"
             android:elevation="@dimen/block1"
+            android:scaleType="fitXY"
             android:src="@drawable/ic_close_black_48dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
