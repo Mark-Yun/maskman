@@ -67,6 +67,7 @@ public class MainViewBLOC extends AndroidViewModel {
 
         Log.d(TAG, "queryStoreList: la1=" + latitude1 + " lo1" + longitude1
                 + " la2=" + latitude2 + " lo2=" + longitude2);
+
         return storeManager.queryStoreList(latitude1, longitude1, latitude2, longitude2)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(compositeDisposable::add);

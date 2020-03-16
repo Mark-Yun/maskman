@@ -23,13 +23,13 @@ public enum ConfigManager {
     private static final String TAG = "ConfigManager";
 
     private final Context context;
-    private final FirebaseRemoteConfig mFirebaseRemoteConfig;
+    private final FirebaseRemoteConfig firebaseRemoteConfig;
 
     ConfigManager() {
         context = ContextHolder.getContext();
 
-        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        mFirebaseRemoteConfig.setConfigSettingsAsync(
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        firebaseRemoteConfig.setConfigSettingsAsync(
                 new FirebaseRemoteConfigSettings.Builder()
                         .setMinimumFetchIntervalInSeconds(3600)
                         .build()
@@ -39,7 +39,7 @@ public enum ConfigManager {
     }
 
     public Maybe<Boolean> fetchConfig() {
-        return Maybe.create(emitter -> mFirebaseRemoteConfig.fetchAndActivate()
+        return Maybe.create(emitter -> firebaseRemoteConfig.fetchAndActivate()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         emitter.onError(new Exception("remote config loading is failed"));
@@ -53,7 +53,7 @@ public enum ConfigManager {
     }
 
     public boolean isEnabled(@OpenStatus final String config) {
-        return mFirebaseRemoteConfig.getBoolean(config);
+        return firebaseRemoteConfig.getBoolean(config);
     }
 
     @StringDef({PHONE_NUMBER, OPEN_STATUS})
