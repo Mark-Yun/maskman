@@ -129,8 +129,8 @@ public class StoreDetailFragment extends Fragment {
 
         subscription.setOnClickListener(this::onSubscriptionClicked);
 
-        boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
-        openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
+//        boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
+//        openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
 
         boolean isPhoneNumberEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.PHONE_NUMBER);
         phoneNumberContainer.setVisibility(isPhoneNumberEnabled ? View.VISIBLE : View.GONE);
