@@ -1,5 +1,6 @@
 package com.mark.zumo.client.customer.view;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,9 +15,12 @@ import androidx.core.content.ContextCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
+import com.mark.zumo.client.customer.bloc.AppUpdateBLOC;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.model.ConfigManager;
@@ -40,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
     private static final String TAG = SplashActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_PERMISSION = 8121;
-    private static final String KEY_IS_PERMISSION_REQUESTED = "is_permission_requested";
+    private static final int REQUEST_CODE_UPDATE = 3124;
 
     @BindView(R.id.icon) AppCompatImageView icon;
     @BindView(R.id.app_label) AppCompatTextView appLabel;
@@ -50,9 +54,9 @@ public class SplashActivity extends AppCompatActivity {
 
     private MainViewBLOC mainViewBLOC;
     private SubscribeBLOC subscribeBLOC;
+    private AppUpdateBLOC appUpdateBLOC;
 
-    private boolean completeLocation;
-    private boolean completeSubList;
+    private int loading;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -64,16 +68,36 @@ public class SplashActivity extends AppCompatActivity {
 
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
         subscribeBLOC = ViewModelProviders.of(this).get(SubscribeBLOC.class);
+        appUpdateBLOC = ViewModelProviders.of(this).get(AppUpdateBLOC.class);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        checkSessionAndStartActivity();
+        appUpdateBLOC.setActivity(this, REQUEST_CODE_UPDATE)
+                .onDownloadComplete(this::popupSnackbarForCompleteUpdate)
+                .updateIfPossibleOnAppUpdateType(AppUpdateType.IMMEDIATE)
+                .doOnSuccess(this::checkSessionAndStartActivity)
+                .doOnError(throwable -> {
+                    checkSessionAndStartActivity(false);
+                    Log.e(TAG, "updateIfPossibleOnAppUpdateType: ", throwable);
+                })
+                .subscribe();
     }
 
-    private void checkSessionAndStartActivity() {
+    /* Displays the snackbar notification and call to action. */
+    private void popupSnackbarForCompleteUpdate() {
+        Snackbar.make(findViewById(R.id.activity), R.string.app_download_complete, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.restart, view -> appUpdateBLOC.completeUpdate())
+                .show();
+    }
+
+    private void checkSessionAndStartActivity(final boolean updateNeeded) {
+        if (updateNeeded) {
+            return;
+        }
+
         boolean isPermissionGranted = Arrays.stream(Permissions.PERMISSIONS)
                 .allMatch(this::isPermissionRequested);
 
@@ -89,31 +113,31 @@ public class SplashActivity extends AppCompatActivity {
             Navigator.startActivityWithFade(this, SignInActivity.class);
         } else {
             showLoadingData();
+
+            final int LOADING_CURRENT_LOCATION = 0x1;
+            final int LOADING_SUB_INFO = 0x2;
+
             subscribeBLOC.registerToken(firebaseUser.getUid())
                     .doOnSuccess(token -> Log.d(TAG, "registerToken: user_id=" + token.user_id + " token=" + token.token_value))
                     .doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
                     .subscribe();
 
             mainViewBLOC.maybeCurrentLocation()
-                    .onErrorResumeNext(
-                            mainViewBLOC.observeCurrentLocation()
-                                    .firstElement()
-                    )
-                    .doOnSuccess(x -> {
-                        completeLocation = true;
-                        startMapsActivityIfPossible();
-                    }).doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
+                    .doOnSubscribe(x -> loading |= LOADING_CURRENT_LOCATION)
+                    .doOnSuccess(x -> loading &= ~LOADING_CURRENT_LOCATION)
+                    .onErrorResumeNext(mainViewBLOC.observeCurrentLocation()
+                            .firstElement())
+                    .doOnSuccess(x -> startMapsActivityIfPossible())
+                    .doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
                     .subscribe();
 
             mainViewBLOC.querySubList(firebaseUser.getUid())
-                    .doOnSuccess(x -> {
-                        completeSubList = true;
-                        startMapsActivityIfPossible();
-                    })
+                    .doOnSubscribe(x -> loading |= LOADING_SUB_INFO)
+                    .doOnSuccess(x -> loading &= ~LOADING_SUB_INFO)
+                    .doOnSuccess(x -> startMapsActivityIfPossible())
                     .subscribe();
 
-            ConfigManager.INSTANCE
-                    .fetchConfig()
+            ConfigManager.INSTANCE.fetchConfig()
                     .subscribe();
         }
     }
@@ -122,7 +146,7 @@ public class SplashActivity extends AppCompatActivity {
         progressBarContainer.setVisibility(View.VISIBLE);
     }
 
-    private void hidLoadingData() {
+    private void hideLoadingData() {
         progressBarContainer.setVisibility(View.GONE);
     }
 
@@ -132,11 +156,27 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startMapsActivityIfPossible() {
-        if (!completeLocation || !completeSubList) {
+        if (loading > 0) {
             return;
         }
 
-        hidLoadingData();
+        hideLoadingData();
         Navigator.startActivityWithFade(this, MapsActivity.class, getIntent().getExtras());
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_UPDATE && resultCode != AppCompatActivity.RESULT_OK) {
+            Log.d(TAG, "onActivityResult: update flow failed");
+            checkSessionAndStartActivity(false);
+        } else if (requestCode == REQUEST_CODE_PERMISSION) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                checkSessionAndStartActivity(false);
+            } else {
+                finish();
+            }
+        }
     }
 }

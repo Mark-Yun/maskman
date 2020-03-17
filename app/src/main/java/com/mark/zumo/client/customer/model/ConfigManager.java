@@ -19,6 +19,7 @@ public enum ConfigManager {
 
     public static final String PHONE_NUMBER = "phone_number_enabled";
     public static final String OPEN_STATUS = "open_status_enabled";
+    public static final String UPDATE_IMMEDIATE = "update_immediate_enabled";
 
     private static final String TAG = "ConfigManager";
 
@@ -52,11 +53,11 @@ public enum ConfigManager {
                 }));
     }
 
-    public boolean isEnabled(@OpenStatus final String config) {
+    public boolean isEnabled(@Config final String config) {
         return firebaseRemoteConfig.getBoolean(config);
     }
 
-    @StringDef({PHONE_NUMBER, OPEN_STATUS})
-    public @interface OpenStatus {
+    @StringDef({PHONE_NUMBER, OPEN_STATUS, UPDATE_IMMEDIATE})
+    public @interface Config {
     }
 }

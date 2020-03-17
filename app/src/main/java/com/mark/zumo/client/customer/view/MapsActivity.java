@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,8 +27,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.install.model.AppUpdateType;
 import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.R;
+import com.mark.zumo.client.customer.bloc.AppUpdateBLOC;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.util.DateUtils;
@@ -60,12 +61,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
+    private static final int REQUEST_CODE_UPDATE = 3124;
+
     private static final float DEFAULT_ZOOM = 15f;
     private static final float MIN_ZOOM = 13f;
 
     @BindView(R.id.list_button) MaterialButton listButton;
 
     private MainViewBLOC mainViewBLOC;
+    private AppUpdateBLOC appUpdateBLOC;
+
     private SupportMapFragment supportMapFragment;
 
     private CompositeDisposable compositeDisposable;
@@ -79,11 +84,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ButterKnife.bind(this);
 
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
+        appUpdateBLOC = ViewModelProviders.of(this).get(AppUpdateBLOC.class);
+
         compositeDisposable = new CompositeDisposable();
         currentStoreList = new CopyOnWriteArrayList<>();
 
         inflateFilterFragment();
         inflateMapFragment();
+
+        if (!appUpdateBLOC.isRejectedAppUpdate()) {
+            appUpdateBLOC.setActivity(this, REQUEST_CODE_UPDATE)
+                    .updateIfPossibleOnAppUpdateType(AppUpdateType.FLEXIBLE)
+                    .subscribe();
+        }
     }
 
     private void inflateFilterFragment() {
@@ -330,6 +343,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .firstElement()
                     .doOnSuccess(this::focusOnStore)
                     .subscribe();
+        } else if (requestCode == REQUEST_CODE_UPDATE
+                && resultCode != AppCompatActivity.RESULT_OK) {
+            Log.d(TAG, "onActivityResult: update flow rejected");
+            appUpdateBLOC.onRejectAppUpdate();
         }
     }
 }
