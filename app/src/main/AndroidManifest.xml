@@ -24,8 +24,6 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
-        <activity android:name=".view.MapsActivity" />
-
         <activity android:name=".view.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,6 +34,7 @@
         <activity android:name=".view.signin.SignInActivity" />
         <activity android:name=".view.permission.PermissionActivity" />
         <activity android:name=".view.store.list.StoreListActivity" />
+        <activity android:name=".view.MainActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -46,6 +45,12 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <receiver android:name=".receiver.AlarmReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.mark.zumo.client.customer.action.ONLINE_STORE_ALARM" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

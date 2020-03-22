@@ -24,6 +24,8 @@ import io.reactivex.schedulers.Schedulers;
 public class FCMService extends FirebaseMessagingService {
 
     private static final String TAG = "FCMService";
+    public static final String NEW_STOCK = "new_stock";
+    public static final String NEW_ONLINE_STORE = "new_online_store";
 
     private StoreManager storeManager;
     private NotificationBLOC notificationBLOC;
@@ -66,12 +68,18 @@ public class FCMService extends FirebaseMessagingService {
         }
 
         switch (type) {
-            case "new_stock":
+            case NEW_STOCK:
                 final String code = data.get("code");
                 if (TextUtils.isEmpty(code)) {
                     return;
                 }
                 notificationBLOC.notifyNewStock(code);
+                break;
+
+            case NEW_ONLINE_STORE:
+                notificationBLOC.notifyNewOnlineStore(data);
+                break;
+
         }
     }
 

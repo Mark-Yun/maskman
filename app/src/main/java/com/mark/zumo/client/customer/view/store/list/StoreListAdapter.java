@@ -102,7 +102,7 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
             if (desc) {
                 storeList.sort((o2, o1) -> {
                     try {
-                        return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
+                        return (int) (DateUtils.createDateStore(o1.stock_at).getTime() - DateUtils.createDateStore(o2.stock_at).getTime());
                     } catch (NullPointerException e) {
                         return 0;
                     }
@@ -110,7 +110,7 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
             } else {
                 storeList.sort((o1, o2) -> {
                     try {
-                        return (int) (DateUtils.createDate(o1.stock_at).getTime() - DateUtils.createDate(o2.stock_at).getTime());
+                        return (int) (DateUtils.createDateStore(o1.stock_at).getTime() - DateUtils.createDateStore(o2.stock_at).getTime());
                     } catch (NullPointerException e) {
                         return 0;
                     }

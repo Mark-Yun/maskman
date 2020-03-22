@@ -40,4 +40,23 @@ public class Navigator {
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
+    public static void startActivityWithFade(@Nullable final Activity activity,
+                                             @NonNull final Class clazz,
+                                             @NonNull final Intent intent) {
+
+        if (activity == null) {
+            return;
+        }
+
+        Intent newIntent = new Intent(activity, clazz);
+        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Optional.ofNullable(intent.getExtras())
+                .ifPresent(newIntent::putExtras);
+        Optional.ofNullable(intent.getAction())
+                .ifPresent(newIntent::setAction);
+
+        activity.startActivity(newIntent);
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
 }

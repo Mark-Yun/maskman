@@ -39,7 +39,10 @@ import butterknife.ButterKnife;
  */
 public class SplashActivity extends AppCompatActivity {
 
-    public static final String KEY_CODE = "code";
+    public static final String ACTION_VIEW_STORE = "com.mark.zumo.client.customer.action.VIEW_STORE";
+    public static final String ACTION_VIEW_ONLINE_STORE = "com.mark.zumo.client.customer.action.VIEW_ONLINE_STORE";
+    public static final String KEY_STORE_CODE = "code";
+    public static final String KEY_ONLINE_STORE_URL = "store_url";
 
     private static final String TAG = SplashActivity.class.getSimpleName();
 
@@ -115,12 +118,6 @@ public class SplashActivity extends AppCompatActivity {
             showLoadingData();
 
             final int LOADING_CURRENT_LOCATION = 0x1;
-            final int LOADING_SUB_INFO = 0x2;
-
-            subscribeBLOC.registerToken(firebaseUser.getUid())
-                    .doOnSuccess(token -> Log.d(TAG, "registerToken: user_id=" + token.user_id + " token=" + token.token_value))
-                    .doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
-                    .subscribe();
 
             mainViewBLOC.maybeCurrentLocation()
                     .doOnSubscribe(x -> loading |= LOADING_CURRENT_LOCATION)
@@ -131,11 +128,7 @@ public class SplashActivity extends AppCompatActivity {
                     .doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
                     .subscribe();
 
-            mainViewBLOC.querySubList(firebaseUser.getUid())
-                    .doOnSubscribe(x -> loading |= LOADING_SUB_INFO)
-                    .doOnSuccess(x -> loading &= ~LOADING_SUB_INFO)
-                    .doOnSuccess(x -> startMapsActivityIfPossible())
-                    .subscribe();
+            mainViewBLOC.queryUserInformation(firebaseUser.getUid());
 
             ConfigManager.INSTANCE.fetchConfig()
                     .subscribe();
@@ -161,7 +154,7 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         hideLoadingData();
-        Navigator.startActivityWithFade(this, MapsActivity.class, getIntent().getExtras());
+        Navigator.startActivityWithFade(this, MainActivity.class, getIntent());
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.mark.zumo.client.customer.model.server;
 
+import com.mark.zumo.client.customer.entity.OnlineStore;
+import com.mark.zumo.client.customer.entity.PushAgreement;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.entity.Sub;
 import com.mark.zumo.client.customer.entity.Token;
 
@@ -44,4 +47,16 @@ public interface AppServer {
 
     @POST("token")
     Maybe<Token> createToken(@Body Token token);
+
+    @GET("store/online")
+    Maybe<List<OnlineStore>> queryOnlineStore();
+
+    @GET("sales/history/{code}")
+    Maybe<List<StoreHistory>> queryStoreHistory(@Path("code") final String code);
+
+    @POST("push/agreement")
+    Maybe<PushAgreement> postPushAgreement(@Body final PushAgreement pushAgreement);
+
+    @GET("push/agreement")
+    Maybe<List<PushAgreement>> queryPushAgreement(@Query("user_id") final String userId);
 }

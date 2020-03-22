@@ -32,7 +32,7 @@ public enum ConfigManager {
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         firebaseRemoteConfig.setConfigSettingsAsync(
                 new FirebaseRemoteConfigSettings.Builder()
-                        .setMinimumFetchIntervalInSeconds(3600)
+                        .setMinimumFetchIntervalInSeconds(600)
                         .build()
         );
 

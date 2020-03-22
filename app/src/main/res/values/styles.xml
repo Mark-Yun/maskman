@@ -17,4 +17,9 @@
         <item name="background">@android:color/transparent</item>
     </style>
 
+    <style name="AppTheme.Button" parent="@style/Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/windowBackground</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
 </resources>

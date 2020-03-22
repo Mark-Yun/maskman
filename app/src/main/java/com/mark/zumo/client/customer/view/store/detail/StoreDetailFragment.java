@@ -35,10 +35,12 @@ import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.model.ConfigManager;
 import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -66,6 +68,7 @@ public class StoreDetailFragment extends Fragment {
     @BindView(R.id.open_status) Chip openStatus;
     @BindView(R.id.phone_number) AppCompatTextView phoneNumber;
     @BindView(R.id.phone_number_container) ConstraintLayout phoneNumberContainer;
+    @BindView(R.id.history_recycler_view) RecyclerView historyRecyclerView;
 
     private MainViewBLOC mainViewBLOC;
     private SubscribeBLOC subscribeBLOC;
@@ -129,11 +132,26 @@ public class StoreDetailFragment extends Fragment {
 
         subscription.setOnClickListener(this::onSubscriptionClicked);
 
-//        boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
-//        openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
+        boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
+        openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
 
         boolean isPhoneNumberEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.PHONE_NUMBER);
         phoneNumberContainer.setVisibility(isPhoneNumberEnabled ? View.VISIBLE : View.GONE);
+
+        inflateStoreHistory(code);
+    }
+
+    private void inflateStoreHistory(final String code) {
+        final StoreHistoryAdapter storeHistoryAdapter = new StoreHistoryAdapter();
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), 8);
+        historyRecyclerView.setLayoutManager(layoutManager);
+        historyRecyclerView.setAdapter(storeHistoryAdapter);
+
+        mainViewBLOC.observableStoreHistoryList(code)
+                .doOnNext(storeHistoryAdapter::setStoreHistoryList)
+                .subscribe();
+
+        mainViewBLOC.queryStoreHistoryList(code);
     }
 
     private void onLoadSubscription(final boolean isChecked) {
@@ -159,7 +177,6 @@ public class StoreDetailFragment extends Fragment {
         subscription.setEnabled(false);
 
         String code = getArguments().getString(CODE_KEY);
-
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
             return true;

@@ -7,6 +7,8 @@ import androidx.annotation.StringDef;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.Optional;
+
 /**
  * Created by mark on 20. 3. 8.
  */
@@ -30,14 +32,14 @@ public class Store {
     public String code;
     public String name;
     public String addr;
-    public String type;
+    @Type public String type;
     public double lat;
     public double lng;
     public String stock_at;
-    public String remain_stat;
+    @Stock public String remain_stat;
     public String create_at;
     public String tel; //xx-xxx-xxxx 형식, 없으면 null
-    public int open; // 1: 영업중, 0:영업종료, -1:영업시간정보없음
+    @OpenStatus public int open; // 1: 영업중, 0:영업종료, -1:영업시간정보없음
 
     public static Store testData() {
         Store store = new Store();
@@ -51,15 +53,12 @@ public class Store {
 
     @Override
     public boolean equals(@Nullable final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-
-        if (obj instanceof Store) {
-            return toString().equals(obj.toString());
-        } else {
-            return false;
-        }
+        return Optional.ofNullable(obj)
+                .filter(this.getClass()::isInstance)
+                .map(this.getClass()::cast)
+                .map(Store::toString)
+                .orElse("")
+                .equals(this.toString());
     }
 
     @NonNull

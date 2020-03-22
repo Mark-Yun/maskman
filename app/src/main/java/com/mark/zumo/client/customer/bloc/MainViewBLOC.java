@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.entity.Sub;
 import com.mark.zumo.client.customer.model.LocationManager;
 import com.mark.zumo.client.customer.model.StoreManager;
@@ -73,12 +74,23 @@ public class MainViewBLOC extends AndroidViewModel {
                 .doOnSubscribe(compositeDisposable::add);
     }
 
+    public void queryUserInformation(final String userID) {
+        storeManager.querySubList(userID)
+                .subscribe();
+
+        storeManager.queryPushAgreement(userID)
+                .subscribe();
+
+        storeManager.maybeFirebaseToken()
+                .flatMap(tokenValue -> storeManager.registerPushToken(userID, tokenValue))
+                .subscribe();
+    }
+
     public Maybe<List<Sub>> querySubList(final String userID) {
         Log.d(TAG, "querySubList: userID=" + userID);
 
         return storeManager.querySubList(userID)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(compositeDisposable::add);
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<List<Store>> observableStoreList(double latitude1, double longitude1,
@@ -105,6 +117,18 @@ public class MainViewBLOC extends AndroidViewModel {
 
         storeListDisposable.dispose();
         storeListDisposable = null;
+    }
+
+    public Observable<List<StoreHistory>> observableStoreHistoryList(final String code) {
+        return storeManager.observableStoreHistory(code)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(compositeDisposable::add);
+    }
+
+    public void queryStoreHistoryList(final String code) {
+        storeManager.queryStoreHistory(code)
+                .doOnSubscribe(compositeDisposable::add)
+                .subscribe();
     }
 
     @Override

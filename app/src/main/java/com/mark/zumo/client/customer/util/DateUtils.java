@@ -21,7 +21,7 @@ public class DateUtils {
     private static final String TAG = DateUtils.class.getSimpleName();
 
     @Nullable
-    public static Date createDate(final String dateString) {
+    public static Date createDateStore(final String dateString) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         try {
@@ -30,6 +30,38 @@ public class DateUtils {
             Log.e(TAG, "createDate: ", e);
         }
         return null;
+    }
+
+    @Nullable
+    public static Date createDateOnlineStore(final String dateString) {
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        try {
+            return format.parse(dateString);
+        } catch (ParseException e) {
+            Log.e(TAG, "createDate: ", e);
+        }
+        return null;
+    }
+
+    public static boolean isForwardedDate(final String dateFormat) {
+        final Date date = createDateStore(dateFormat);
+        if (date == null) {
+            return false;
+        }
+
+        Calendar currentCalendar = Calendar.getInstance(Locale.getDefault());
+        return date.getTime() - currentCalendar.getTime().getTime() > 0;
+    }
+
+    public static int isFaster(final String format1, final String format2) {
+        final Date date1 = createDateStore(format1);
+        final Date date2 = createDateStore(format2);
+
+        if (date1 == null || date2 == null) {
+            return 0;
+        }
+        return (int) (date1.getTime() - date2.getTime());
     }
 
     public static String getTodayPartition(final Context context) {
@@ -67,7 +99,7 @@ public class DateUtils {
 
     public static String convertTimeStamp(final String createdDateString) {
         Log.d(TAG, "convertTimeStamp: createdDateString=" + createdDateString);
-        final Date createdDate = createDate(createdDateString);
+        final Date createdDate = createDateStore(createdDateString);
         if (createdDate == null) {
             return "";
         }

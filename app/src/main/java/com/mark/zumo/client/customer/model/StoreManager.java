@@ -1,17 +1,24 @@
 package com.mark.zumo.client.customer.model;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.mark.zumo.client.customer.ContextHolder;
+import com.mark.zumo.client.customer.entity.OnlineStore;
+import com.mark.zumo.client.customer.entity.PushAgreement;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.entity.Sub;
 import com.mark.zumo.client.customer.entity.Token;
 import com.mark.zumo.client.customer.model.local.DatabaseProvider;
+import com.mark.zumo.client.customer.model.local.dao.OnlineStoreDao;
 import com.mark.zumo.client.customer.model.local.dao.StoreDao;
 import com.mark.zumo.client.customer.model.local.dao.SubDao;
 import com.mark.zumo.client.customer.model.server.AppServer;
 import com.mark.zumo.client.customer.model.server.AppServerProvider;
+import com.mark.zumo.client.customer.util.DateUtils;
 
 import java.util.List;
 
@@ -25,10 +32,13 @@ import io.reactivex.schedulers.Schedulers;
 public enum StoreManager {
     INSTANCE;
 
+    public static final String KEY_HIDE = "hide_";
+    public static final String KEY_SUBSCRIBE = "subscribe_";
     private final Context context;
     private final AppServer appServer;
     private final StoreDao storeDao;
     private final SubDao subDao;
+    private final OnlineStoreDao onlineStoreDao;
 
     StoreManager() {
         context = ContextHolder.getContext();
@@ -37,6 +47,7 @@ public enum StoreManager {
 
         storeDao = DatabaseProvider.INSTANCE.maskManDatabase.storeDao();
         subDao = DatabaseProvider.INSTANCE.maskManDatabase.subDao();
+        onlineStoreDao = DatabaseProvider.INSTANCE.maskManDatabase.onlineStoreDao();
     }
 
     public Maybe<List<Store>> queryStoreList(double latitude1, double longitude1,
@@ -107,5 +118,83 @@ public enum StoreManager {
                 emitter.onComplete();
             }).addOnFailureListener(emitter::onError);
         });
+    }
+
+    public Observable<List<OnlineStore>> observableOnlineStore() {
+        return onlineStoreDao.flowableOnlineStoreList()
+                .flatMapSingle(onlineStores ->
+                        Observable.fromIterable(onlineStores)
+                                .map(this::updateSharedPreference)
+//                                .filter(onlineStore -> DateUtils.isForwardedDate(onlineStore.start_time))
+                                .sorted((o1, o2) -> DateUtils.isFaster(o1.start_time, o2.start_time))
+                                .toList())
+                .distinctUntilChanged()
+                .toObservable()
+                .subscribeOn(Schedulers.io());
+    }
+
+    public OnlineStore updateSharedPreference(final OnlineStore onlineStore) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        onlineStore.hide = defaultSharedPreferences
+                .getBoolean(KEY_HIDE + onlineStore.store_url, false);
+        onlineStore.subscribe = defaultSharedPreferences
+                .getBoolean(KEY_SUBSCRIBE + onlineStore.store_url, false);
+        return onlineStore;
+    }
+
+    public Maybe<List<OnlineStore>> queryOnlineStore() {
+        return appServer.queryOnlineStore()
+                .doOnSuccess(onlineStoreDao::insertOnlineStoreList)
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Observable<List<StoreHistory>> observableStoreHistory(final String code) {
+        return storeDao.flowableStoreHistory(code, 7)
+                .distinctUntilChanged()
+                .toObservable()
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Maybe<List<StoreHistory>> queryStoreHistory(final String code) {
+        return appServer.queryStoreHistory(code)
+                .flatMap(storeHistoryList ->
+                        Observable.fromIterable(storeHistoryList)
+                                .map(storeHistory -> storeHistory.setCode(code))
+                                .toList()
+                                .toMaybe())
+                .doOnSuccess(storeDao::insertStoreHistoryList)
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Observable<PushAgreement> observableSubscriptionNewOnlineStore(final String userUuid) {
+        return onlineStoreDao.flowablePushAgreement(userUuid, PushAgreement.NEW_ONLINE_STORE)
+                .distinctUntilChanged()
+                .toObservable()
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Maybe<PushAgreement> subscribeNewOnlineStore(final String userUuid, final boolean enabled) {
+        PushAgreement pushAgreement = new PushAgreement();
+        pushAgreement.user_id = userUuid;
+        pushAgreement.push_type = PushAgreement.NEW_ONLINE_STORE;
+        pushAgreement.value = enabled ? PushAgreement.AGREED : PushAgreement.REJECTED;
+
+        return appServer.postPushAgreement(pushAgreement)
+                .doOnSuccess(onlineStoreDao::insertPushAgreement)
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Maybe<List<PushAgreement>> queryPushAgreement(final String userUuid) {
+        return appServer.queryPushAgreement(userUuid)
+                .doOnSuccess(onlineStoreDao::insertPushAgreementList)
+                .subscribeOn(Schedulers.io());
+    }
+
+    public void updateOnlineStore(final OnlineStore onlineStore) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(KEY_HIDE + onlineStore.store_url, onlineStore.hide)
+                .putBoolean(KEY_SUBSCRIBE + onlineStore.store_url, onlineStore.subscribe)
+                .apply();
     }
 }

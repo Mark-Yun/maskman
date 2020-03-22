@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.InstallState;
@@ -71,19 +74,16 @@ public class AppUpdateBLOC extends AndroidViewModel implements InstallStateUpdat
 
     public Maybe<Boolean> updateIfPossibleOnAppUpdateType(@AppUpdateType final int appUpdateType) {
         Log.d(TAG, "updateIfPossibleOnAppUpdateType: appUpdateType=" + appUpdateType);
-        boolean immediateUpdate = appUpdateType != AppUpdateType.IMMEDIATE
-                || configManager.isEnabled(ConfigManager.UPDATE_IMMEDIATE);
 
         return Maybe.create(
                 (MaybeEmitter<Boolean> emitter) ->
                         appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
                             Log.d(TAG, "updateIfPossibleOnAppUpdateType: appUpdateInfo=" + appUpdateInfo);
                             Log.d(TAG, "updateIfPossibleOnAppUpdateType: isUpdateTypeAllowed="
-                                    + appUpdateInfo.isUpdateTypeAllowed(appUpdateType));
+                                    + isUpdateTypeAllowed(appUpdateInfo, appUpdateType));
 
                             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                                    && immediateUpdate
-                                    && appUpdateInfo.isUpdateTypeAllowed(appUpdateType)) {
+                                    && isUpdateTypeAllowed(appUpdateInfo, appUpdateType)) {
 
                                 try {
                                     appUpdateManager.startUpdateFlowForResult(appUpdateInfo, appUpdateType, activity, requestCode);
@@ -112,6 +112,41 @@ public class AppUpdateBLOC extends AndroidViewModel implements InstallStateUpdat
                 .doOnSubscribe(compositeDisposable::add)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private boolean isUpdateTypeAllowed(final AppUpdateInfo appUpdateInfo,
+                                        @AppUpdateType final int appUpdateType) {
+        //210020010
+        int availableVersionCode = appUpdateInfo.availableVersionCode();
+        long versionCode = getVersionCode();
+        Log.d(TAG, "isUpdateTypeAllowed: versionCode=" + versionCode +
+                " availableVersionCode=" + availableVersionCode);
+
+        switch (appUpdateType) {
+            case AppUpdateType.IMMEDIATE:
+                return availableVersionCode / 10000 > versionCode / 10000;
+            case AppUpdateType.FLEXIBLE:
+                return availableVersionCode / 1000000 > versionCode / 1000000;
+            default:
+                return false;
+        }
+    }
+
+    private long getVersionCode() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                return context.getPackageManager()
+                        .getPackageInfo(context.getPackageName(), 0)
+                        .getLongVersionCode();
+            } else {
+                return (long) context.getPackageManager()
+                        .getPackageInfo(context.getPackageName(), 0)
+                        .versionCode;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "getVersionCode: ", e);
+            return Long.MAX_VALUE;
+        }
     }
 
     public AppUpdateBLOC setActivity(final Activity activity, int requestCode) {

@@ -13,7 +13,7 @@ public class FilterSettingUtils {
 
     private static final String FILTER_SHARED_PREF = "filter";
 
-    public static boolean getFilterSetting(@Nullable final Context context, final String key) {
+    public static boolean isShownFilterSetting(@Nullable final Context context, final String key) {
         if (context == null || TextUtils.isEmpty(key)) {
             return false;
         }

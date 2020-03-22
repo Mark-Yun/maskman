@@ -6,12 +6,14 @@
     android:background="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/store_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/block2"
         android:layout_marginEnd="@dimen/block2"
         android:background="@drawable/corner_background_store_detail"
-        android:elevation="@dimen/block1"
+        android:elevation="@dimen/block_half"
+        app:layout_constraintBottom_toTopOf="@+id/history"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -29,21 +31,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/desc_sub_stock_in"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/subscription"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/subscription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@string/desc_sub_stock_in"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:switchPadding="@dimen/block1" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -82,12 +78,12 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/open_status"
-                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/block2"
                     android:text="@string/unknown"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:visibility="gone"
                     app:chipIcon="@drawable/open_ic_unknown"
                     app:chipIconSize="@dimen/block2"
                     app:iconEndPadding="0dp"
@@ -352,5 +348,42 @@
             android:src="@drawable/ic_close_black_48dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/block2"
+        android:layout_marginTop="@dimen/block1"
+        android:layout_marginEnd="@dimen/block2"
+        android:layout_marginBottom="@dimen/block1"
+        android:background="@drawable/corner_background_store_detail"
+        android:elevation="@dimen/block_half"
+        android:paddingTop="@dimen/block1"
+        android:paddingBottom="@dimen/block1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/store_info"
+        app:layout_goneMarginBottom="@dimen/block2">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/history_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/block3"
+            android:text="@string/store_history"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/history_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/block_half"
+            android:layout_marginTop="@dimen/block_half"
+            android:layout_marginEnd="@dimen/block_half"
+            android:layout_marginBottom="@dimen/block_half"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/history_label" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -59,4 +59,27 @@
 
     <string name="app_download_complete">업데이트 다운로드가 완료되었습니다</string>
     <string name="restart">재시작하기</string>
+
+    <string name="near_by_store">주변 판매점</string>
+    <string name="online_store">온라인 판매점</string>
+    <string name="day_of_week_1">월</string>
+    <string name="day_of_week_2">화</string>
+    <string name="day_of_week_3">수</string>
+    <string name="day_of_week_4">목</string>
+    <string name="day_of_week_5">금</string>
+    <string name="day_of_week_6">토</string>
+    <string name="day_of_week_7">일</string>
+
+    <string name="stock_at">입고</string>
+    <string name="empty_at">매진</string>
+    <string name="store_history">지난 입고 내역</string>
+
+    <string name="subscription_new_online_store">새로운 온라인 판매점 알림</string>
+    <string name="subscription_before_5_minutes">판매 5분전 알림</string>
+
+    <string name="on_sale">판매중</string>
+    <string name="preparing_sale">준비중</string>
+    <string name="sold_out">판매종료</string>
+    <string name="hide">숨기기</string>
+
 </resources>
