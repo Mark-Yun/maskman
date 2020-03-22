@@ -1,6 +1,7 @@
 package com.mark.zumo.client.customer.view.store.detail;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -278,6 +279,10 @@ public class StoreDetailFragment extends Fragment {
 
     @OnClick(R.id.phone_number)
     public void onPhoneNumberClicked() {
-        startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + store.tel)));
+        try {
+            startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + store.tel)));
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "onPhoneNumberClicked: ", e);
+        }
     }
 }

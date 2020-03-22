@@ -125,7 +125,6 @@ public enum StoreManager {
                 .flatMapSingle(onlineStores ->
                         Observable.fromIterable(onlineStores)
                                 .map(this::updateSharedPreference)
-//                                .filter(onlineStore -> DateUtils.isForwardedDate(onlineStore.start_time))
                                 .sorted((o1, o2) -> DateUtils.isFaster(o1.start_time, o2.start_time))
                                 .toList())
                 .distinctUntilChanged()

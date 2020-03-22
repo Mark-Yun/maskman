@@ -60,7 +60,7 @@ import io.reactivex.schedulers.Schedulers;
 public class MapsFragment extends Fragment implements OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String KEY_CODE = "code";
+    private static final String KEY_CODE = "code";
 
     private static final String TAG = MapsFragment.class.getSimpleName();
 
@@ -335,7 +335,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     }
 
     @OnClick(R.id.list_button)
-    public void onListButtonClicked() {
+    void onListButtonClicked() {
         List<Store> refinedStoreList = currentStoreList.stream()
                 .filter(store -> FilterSettingUtils.isShownFilterSetting(getContext(), store.remain_stat))
                 .collect(Collectors.toList());

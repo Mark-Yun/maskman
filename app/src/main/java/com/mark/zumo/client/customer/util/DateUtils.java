@@ -5,6 +5,7 @@ import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mark.zumo.client.customer.R;
@@ -32,7 +33,7 @@ public class DateUtils {
         return null;
     }
 
-    @Nullable
+    @NonNull
     public static Date createDateOnlineStore(final String dateString) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -41,26 +42,19 @@ public class DateUtils {
         } catch (ParseException e) {
             Log.e(TAG, "createDate: ", e);
         }
-        return null;
+        return Calendar.getInstance(Locale.getDefault()).getTime();
     }
 
     public static boolean isForwardedDate(final String dateFormat) {
-        final Date date = createDateStore(dateFormat);
-        if (date == null) {
-            return false;
-        }
-
+        final Date date = createDateOnlineStore(dateFormat);
         Calendar currentCalendar = Calendar.getInstance(Locale.getDefault());
         return date.getTime() - currentCalendar.getTime().getTime() > 0;
     }
 
-    public static int isFaster(final String format1, final String format2) {
-        final Date date1 = createDateStore(format1);
-        final Date date2 = createDateStore(format2);
+    public static int isFaster(final String onlineStoreFormat1, final String onlineStoreFormat2) {
+        final Date date1 = createDateOnlineStore(onlineStoreFormat1);
+        final Date date2 = createDateOnlineStore(onlineStoreFormat2);
 
-        if (date1 == null || date2 == null) {
-            return 0;
-        }
         return (int) (date1.getTime() - date2.getTime());
     }
 
