@@ -7,6 +7,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.entity.Store;
 import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.entity.Sub;
@@ -74,7 +76,17 @@ public class MainViewBLOC extends AndroidViewModel {
                 .doOnSubscribe(compositeDisposable::add);
     }
 
-    public void queryUserInformation(final String userID) {
+    public void queryUserInformation() {
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "queryUserInformation: current user is null");
+            return;
+        }
+
+        queryUserInformation(currentUser.getUid());
+    }
+
+    private void queryUserInformation(final String userID) {
         storeManager.querySubList(userID)
                 .subscribe();
 

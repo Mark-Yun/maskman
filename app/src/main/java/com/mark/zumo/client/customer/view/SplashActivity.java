@@ -1,7 +1,6 @@
 package com.mark.zumo.client.customer.view;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,25 +10,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.AppUpdateBLOC;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
-import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.model.ConfigManager;
 import com.mark.zumo.client.customer.util.Navigator;
-import com.mark.zumo.client.customer.view.permission.PermissionActivity;
-import com.mark.zumo.client.customer.view.permission.Permissions;
-import com.mark.zumo.client.customer.view.signin.SignInActivity;
-
-import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,10 +46,7 @@ public class SplashActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar_container) LinearLayoutCompat progressBarContainer;
 
     private MainViewBLOC mainViewBLOC;
-    private SubscribeBLOC subscribeBLOC;
     private AppUpdateBLOC appUpdateBLOC;
-
-    private int loading;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -70,7 +57,6 @@ public class SplashActivity extends AppCompatActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
         mainViewBLOC = ViewModelProviders.of(this).get(MainViewBLOC.class);
-        subscribeBLOC = ViewModelProviders.of(this).get(SubscribeBLOC.class);
         appUpdateBLOC = ViewModelProviders.of(this).get(AppUpdateBLOC.class);
     }
 
@@ -100,39 +86,12 @@ public class SplashActivity extends AppCompatActivity {
         if (updateNeeded) {
             return;
         }
+        showLoadingData();
+        startMapsActivityIfPossible();
 
-        boolean isPermissionGranted = Arrays.stream(Permissions.PERMISSIONS)
-                .allMatch(this::isPermissionRequested);
-
-        if (!isPermissionGranted) {
-            PermissionActivity.start(this, REQUEST_CODE_PERMISSION);
-            return;
-        }
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Log.d(TAG, "checkSessionAndStartActivity: firebaseUser=" + firebaseUser);
-
-        if (firebaseUser == null) {
-            Navigator.startActivityWithFade(this, SignInActivity.class);
-        } else {
-            showLoadingData();
-
-            final int LOADING_CURRENT_LOCATION = 0x1;
-
-            mainViewBLOC.maybeCurrentLocation()
-                    .doOnSubscribe(x -> loading |= LOADING_CURRENT_LOCATION)
-                    .doOnSuccess(x -> loading &= ~LOADING_CURRENT_LOCATION)
-                    .onErrorResumeNext(mainViewBLOC.observeCurrentLocation()
-                            .firstElement())
-                    .doOnSuccess(x -> startMapsActivityIfPossible())
-                    .doOnError(throwable -> Log.e(TAG, "checkSessionAndStartActivity: ", throwable))
-                    .subscribe();
-
-            mainViewBLOC.queryUserInformation(firebaseUser.getUid());
-
-            ConfigManager.INSTANCE.fetchConfig()
-                    .subscribe();
-        }
+        mainViewBLOC.queryUserInformation();
+        ConfigManager.INSTANCE.fetchConfig()
+                .subscribe();
     }
 
     private void showLoadingData() {
@@ -143,16 +102,7 @@ public class SplashActivity extends AppCompatActivity {
         progressBarContainer.setVisibility(View.GONE);
     }
 
-    private boolean isPermissionRequested(final String permission) {
-        return ContextCompat.checkSelfPermission(this, permission)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
     private void startMapsActivityIfPossible() {
-        if (loading > 0) {
-            return;
-        }
-
         hideLoadingData();
         Navigator.startActivityWithFade(this, MainActivity.class, getIntent());
     }

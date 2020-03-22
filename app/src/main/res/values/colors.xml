@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimary">#3595D5</color>
     <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#A00033</color>
+    <color name="colorAccent">#3595D5</color>
     <color name="windowBackground">#FFFAFAFA</color>
     <color name="windowBackgroundAlpha">#AAFAFAFA</color>
 
@@ -14,4 +14,8 @@
     <color name="opened">@android:color/holo_green_light</color>
     <color name="closed">@android:color/holo_red_light</color>
     <color name="unknown">@android:color/darker_gray</color>
+
+    <color name="windowBackgroundDark">#2A2A2A</color>
+    <color name="textColorDark">#c6c6c6</color>
+    <color name="textColor">@android:color/black</color>
 </resources>

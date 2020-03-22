@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +28,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mark.zumo.client.customer.ContextHolder;
 import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.entity.Store;
+import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.FilterSettingUtils;
 import com.mark.zumo.client.customer.util.MapUtils;
 import com.mark.zumo.client.customer.view.store.detail.StoreDetailFragment;
@@ -102,6 +103,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         inflateFilterFragment();
         inflateMapFragment();
+        showGuideToast();
 
         return view;
     }
@@ -153,7 +155,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     .doOnSuccess(this::focusOnStore)
                     .subscribe();
         } else {
-            onLocationLoaded(googleMap, mainViewBLOC.getCurrentLocation());
+            mainViewBLOC.maybeCurrentLocation()
+                    .onErrorResumeNext(mainViewBLOC.observeCurrentLocation()
+                            .firstElement())
+                    .doOnSuccess(location -> onLocationLoaded(googleMap, location))
+                    .subscribe();
         }
 
         initUiSettings(googleMap);
@@ -211,6 +217,27 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 .commit();
     }
 
+    private void showGuideToast() {
+        String todayPartition = DateUtils.getTodayPartition(getContext());
+        String tomorrowPartition = DateUtils.getTomorrowPartition(getContext());
+
+        String message = getString(R.string.purchase_today, todayPartition) + "\n"
+                + getString(R.string.purchase_tomorrow, tomorrowPartition);
+
+        if (getView() == null) {
+            return;
+        }
+
+        Snackbar.make(getView().findViewById(R.id.container), message, Snackbar.LENGTH_LONG)
+                .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                .setAction(android.R.string.ok, this::mark)
+                .show();
+    }
+
+    private void mark(View view) {
+
+    }
+
     private void onCameraIdle() {
         if (supportMapFragment == null) {
             return;
@@ -226,12 +253,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
             Log.d(TAG, "onCameraIdle: northeast.latitude=" + northeast.latitude + " northeast.longitude=" + northeast.longitude
                     + " southwest.x=" + southwest.latitude + " southwest.longitude=" + southwest.longitude);
 
-            if (googleMap.getCameraPosition().zoom < MIN_ZOOM) {
+            final float zoom = googleMap.getCameraPosition().zoom;
+            Log.d(TAG, "onCameraIdle: zoom=" + zoom);
+
+            if (zoom < MIN_ZOOM && zoom > 6f) {
                 Toast.makeText(ContextHolder.getContext(), "범위가 너무 넓습니다. 지도를 확대해주세요.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            Log.d(TAG, "onCameraIdle: zoom=" + googleMap.getCameraPosition().zoom);
 
             mainViewBLOC.queryStoreList(northeast.latitude, northeast.longitude,
                     southwest.latitude, southwest.longitude)
@@ -293,8 +321,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 .title(store.code);
     }
 
-    //todo clear disposables when onDestory
-
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         supportMapFragment.getMapAsync(googleMap -> onLoadStoreList(googleMap, currentStoreList));
@@ -304,6 +330,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
     public void onDestroy() {
         super.onDestroy();
 
+        compositeDisposable.clear();
         FilterSettingUtils.unRegisterOnFilterSettingChanged(getContext(), this);
     }
 

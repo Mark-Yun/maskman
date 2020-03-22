@@ -25,6 +25,7 @@ import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.OnlineStoreBLOC;
 import com.mark.zumo.client.customer.entity.OnlineStore;
 import com.mark.zumo.client.customer.view.SplashActivity;
+import com.mark.zumo.client.customer.view.signin.SignInActivity;
 
 import java.util.Optional;
 
@@ -88,14 +89,17 @@ public class OnlineStoreFragment extends Fragment {
 
         onlineStoreBLOC.queryOnlineStoreList();
 
+        observeNewOnlineStoreSub();
+        subscription.setOnClickListener(v -> onClickSubscription());
+    }
+
+    private void observeNewOnlineStoreSub() {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             onlineStoreBLOC.observableSubscriptionNewOnlineStore(currentUser.getUid())
                     .doOnNext(subscription::setChecked)
                     .subscribe();
         }
-        subscription.setOnCheckedChangeListener(this::onSubscriptionChanged);
-        subscription.setOnClickListener(v -> onClickSubscription());
     }
 
     private Void onHideStore(final OnlineStore onlineStore, final Runnable onCanceled) {
@@ -113,26 +117,35 @@ public class OnlineStoreFragment extends Fragment {
     }
 
     private void onClickSubscription() {
+
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser == null) {
+            SignInActivity.startActivityWithFade(getActivity(), this::onSignInSuccess,
+                    this::onSignInFailed);
+            return;
+        }
+
         if (subscription.isChecked()) {
             Toast.makeText(ContextHolder.getContext(), "새로운 온라인 판매점 발견시 알려드릴게요.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(ContextHolder.getContext(), "새로운 온라인 판매점 알림을 해제합니다.", Toast.LENGTH_SHORT).show();
         }
-    }
 
-    private void onSubscriptionChanged(final View view, final boolean isChecked) {
-        final String userUuid = Optional.ofNullable(FirebaseAuth.getInstance().getCurrentUser())
-                .map(FirebaseUser::getUid)
-                .orElse("");
-
-        if (TextUtils.isEmpty(userUuid)) {
-            return;
-        }
         subscription.setEnabled(false);
-        onlineStoreBLOC.subscribeNewOnlineStore(userUuid, isChecked)
+        onlineStoreBLOC.subscribeNewOnlineStore(currentUser.getUid(), subscription.isChecked())
                 .doOnSuccess(aBoolean -> subscription.setEnabled(true))
                 .doOnError(this::onSubscribeError)
                 .subscribe();
+    }
+
+    private void onSignInSuccess() {
+        observeNewOnlineStoreSub();
+        onClickSubscription();
+    }
+
+    private void onSignInFailed() {
+        subscription.setChecked(!subscription.isChecked());
     }
 
     private void onSubscribeError(final Throwable throwable) {

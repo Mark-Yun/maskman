@@ -35,12 +35,11 @@ import com.mark.zumo.client.customer.R;
 import com.mark.zumo.client.customer.bloc.MainViewBLOC;
 import com.mark.zumo.client.customer.bloc.SubscribeBLOC;
 import com.mark.zumo.client.customer.entity.Store;
-import com.mark.zumo.client.customer.entity.StoreHistory;
 import com.mark.zumo.client.customer.model.ConfigManager;
 import com.mark.zumo.client.customer.util.DateUtils;
 import com.mark.zumo.client.customer.util.StoreUtils;
+import com.mark.zumo.client.customer.view.signin.SignInActivity;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -116,21 +115,13 @@ public class StoreDetailFragment extends Fragment {
         }
 
         String code = getArguments().getString(CODE_KEY);
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mainViewBLOC.observableStore(code)
                 .doOnNext(this::onLoadStore)
                 .subscribe();
 
-        if (firebaseUser != null) {
-            subscription.setEnabled(false);
-            subscribeBLOC.observableSub(firebaseUser.getUid(), code)
-                    .firstElement()
-                    .doOnSuccess(this::onFirstLoadSubscription)
-                    .subscribe();
-        }
-
         subscription.setOnClickListener(this::onSubscriptionClicked);
+        observeSubscriptionInfo();
 
         boolean isOpenStatusEnabled = ConfigManager.INSTANCE.isEnabled(ConfigManager.OPEN_STATUS);
         openStatus.setVisibility(isOpenStatusEnabled ? View.VISIBLE : View.GONE);
@@ -155,30 +146,23 @@ public class StoreDetailFragment extends Fragment {
     }
 
     private void onLoadSubscription(final boolean isChecked) {
-        subscription.setEnabled(true);
         Log.d(TAG, "onLoadSubscription: isChecked=" + isChecked);
-    }
-
-    private void onFirstLoadSubscription(final boolean isChecked) {
-        Log.d(TAG, "onFirstLoadSubscription: isChecked=" + isChecked);
-
         subscription.setEnabled(true);
         subscription.setChecked(isChecked);
-
-        observeSubscriptionInfo();
     }
 
-    private boolean onSubscriptionClicked(final View view) {
+    private boolean onSubscriptionClicked(@Nullable final View view) {
         if (getArguments() == null) {
             return true;
         }
 
         Log.d(TAG, "onSubscriptionClicked: ");
-        subscription.setEnabled(false);
 
         String code = getArguments().getString(CODE_KEY);
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
+            SignInActivity.startActivityWithFade(getActivity(), this::onSignInSuccess,
+                    this::onSignInFailed);
             return true;
         }
 
@@ -188,6 +172,7 @@ public class StoreDetailFragment extends Fragment {
             Toast.makeText(ContextHolder.getContext(), "입고 알림을 해제합니다.", Toast.LENGTH_SHORT).show();
         }
 
+        subscription.setEnabled(false);
         subscribeBLOC.subscribe(firebaseUser.getUid(), code, subscription.isChecked())
                 .doOnError(this::onSubscribeError)
                 .subscribe();
@@ -195,12 +180,19 @@ public class StoreDetailFragment extends Fragment {
         return true;
     }
 
+    private void onSignInSuccess() {
+        observeSubscriptionInfo();
+        onSubscriptionClicked(null);
+    }
+
+    private void onSignInFailed() {
+        subscription.setChecked(!subscription.isChecked());
+    }
+
     private void onSubscribeError(final Throwable t) {
         Toast.makeText(ContextHolder.getContext(), "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
         subscription.setChecked(!subscription.isChecked());
         subscription.setEnabled(true);
-
-        observeSubscriptionInfo();
     }
 
     private void observeSubscriptionInfo() {
