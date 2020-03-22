@@ -19,7 +19,11 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.mark.zumo.client.customer.R;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by mark on 20. 3. 10.
@@ -31,36 +35,43 @@ public class MapUtils {
     public static final String FEW = "few";
     public static final String EMPTY = "empty";
 
+    private static final Map<String, Map<String, Bitmap>> bitmapCache = new HashMap<>();
+
     public static BitmapDescriptor createCustomMarker(final Activity activity, final String status,
                                                       final String type) {
+        final Bitmap bitmap = bitmapCache.computeIfAbsent(status, key -> new HashMap<>())
+                .computeIfAbsent(type, key -> createBitmap(activity, status, type));
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
 
+    @NotNull
+    private static Bitmap createBitmap(final Activity activity, final String status, final String type) {
         final LayoutInflater layoutInflater = activity.getSystemService(LayoutInflater.class);
-        final View marker = layoutInflater.inflate(R.layout.marker_store, null);
+        final View view = layoutInflater.inflate(R.layout.marker_store, null);
 
-        final TextView text = marker.findViewById(R.id.text);
+        final TextView text = view.findViewById(R.id.text);
         text.setText(StoreUtils.getStatusLabel(status));
 
-        final AppCompatImageView tail = marker.findViewById(R.id.tail);
+        final AppCompatImageView tail = view.findViewById(R.id.tail);
         tail.setImageTintList(ColorStateList.valueOf(activity.getColor(StoreUtils.getStatusColor(status))));
 
-        final ConstraintLayout container = marker.findViewById(R.id.text_container);
+        final ConstraintLayout container = view.findViewById(R.id.text_container);
         container.setBackground(activity.getDrawable(StoreUtils.getStatusBackground(status)));
 
         final DisplayMetrics displayMetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        final AppCompatImageView icon = marker.findViewById(R.id.icon);
+        final AppCompatImageView icon = view.findViewById(R.id.icon);
         icon.setImageResource(StoreUtils.getTypeDrawable(type));
 
-        marker.setLayoutParams(new ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT));
-        marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
-        marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
-        marker.buildDrawingCache();
-        Bitmap bitmap = Bitmap.createBitmap(marker.getMeasuredWidth(), marker.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        view.setLayoutParams(new ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        marker.draw(canvas);
-
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+        view.draw(canvas);
+        return bitmap;
     }
 
     public static Location locationFrom(double latitude, double longitude) {
