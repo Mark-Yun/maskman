@@ -137,7 +137,11 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final OnlineStore onlineStore = onlineStoreList.get(position);
 
-        holder.title.setText(onlineStore.title);
+        String title = onlineStore.title;
+        if (!TextUtils.isEmpty(title)) {
+            title = title.replaceAll("\\[.*\\] ", "");
+        }
+        holder.title.setText(title);
         holder.storeName.setText(onlineStore.store_name);
         holder.price.setText(onlineStore.price);
         holder.startTime.setText(onlineStore.start_time);
