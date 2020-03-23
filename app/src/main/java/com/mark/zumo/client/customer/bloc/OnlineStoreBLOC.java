@@ -74,10 +74,6 @@ public class OnlineStoreBLOC extends AndroidViewModel {
 
         if (subscribe) {
             final Date date = DateUtils.createDateOnlineStore(onlineStore.start_time);
-            if (date == null) {
-                return;
-            }
-
             final long exactTime = date.getTime() - 5 * 60 * 1000;
 
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, exactTime, pendingIntent);

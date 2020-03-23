@@ -3,6 +3,7 @@ package com.mark.zumo.client.customer.view.store.detail;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ class StoreHistoryAdapter extends RecyclerView.Adapter<StoreHistoryAdapter.ViewH
             R.string.day_of_week_6,
             R.string.day_of_week_7,
     };
+    public static final String TAG = "StoreHistoryAdapter";
 
     private final List<StoreHistory> storeHistoryList;
 
@@ -67,9 +69,11 @@ class StoreHistoryAdapter extends RecyclerView.Adapter<StoreHistoryAdapter.ViewH
             holder.end.setText(context.getString(R.string.empty_at));
             return;
         }
-        int dayOfWeek = Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_WEEK);
+        int dayOfWeek = Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_WEEK) + 5;
         int dayOfPosition = (position - 1 + dayOfWeek) % 7;
         final StoreHistory storeHistory = storeHistoryList.get(dayOfPosition);
+        Log.d(TAG, "onBindViewHolder: dayOfWeek=" + dayOfWeek + " position=" + position +
+                " dayOfPosition=" + dayOfPosition + " storeHistory.date=" + storeHistory.date);
 
         holder.label.setText(DAYS_OF_WEEK[position - 1]);
         if (!TextUtils.isEmpty(storeHistory.stock_at) && storeHistory.stock_at.length() > 5) {
