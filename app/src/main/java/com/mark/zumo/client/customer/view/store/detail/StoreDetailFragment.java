@@ -59,11 +59,9 @@ public class StoreDetailFragment extends Fragment {
 
     @BindView(R.id.subscription) SwitchMaterial subscription;
     @BindView(R.id.name) AppCompatTextView name;
-    @BindView(R.id.type) AppCompatTextView type;
     @BindView(R.id.addr) AppCompatTextView addr;
     @BindView(R.id.stock) AppCompatTextView stock;
     @BindView(R.id.stock_at) AppCompatTextView stockAt;
-    @BindView(R.id.created_at) AppCompatTextView createdAt;
     @BindView(R.id.close) AppCompatImageButton close;
     @BindView(R.id.open_status) Chip openStatus;
     @BindView(R.id.phone_number) AppCompatTextView phoneNumber;
@@ -218,11 +216,9 @@ public class StoreDetailFragment extends Fragment {
         this.store = store;
 
         name.setText(store.name);
-        type.setText(StoreUtils.getTypeLabel(getContext(), store.type));
         addr.setText(store.addr);
         stock.setText(StoreUtils.getStockLabel(getContext(), store.remain_stat));
         stockAt.setText(DateUtils.convertTimeStamp(store.stock_at));
-        createdAt.setText(DateUtils.convertTimeStamp(store.create_at));
         openStatus.setText(StoreUtils.getOpenStatusLabel(getContext(), store.open));
         openStatus.setChipIcon(StoreUtils.getOpenStatusIcon(getContext(), store.open));
         phoneNumberContainer.setVisibility(TextUtils.isEmpty(store.tel) ? View.GONE : View.VISIBLE);

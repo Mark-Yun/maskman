@@ -25,8 +25,8 @@ import com.mark.zumo.client.customer.view.permission.PermissionFragment;
 import com.mark.zumo.client.customer.view.permission.Permissions;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,7 +43,9 @@ public class MainActivity extends AppCompatActivity
 
     @BindView(R.id.nav_view) BottomNavigationView navView;
 
-    private Map<Integer, Fragment> fragmentMap;
+    @Nullable
+    private Fragment mapsFragment, onlineStoreFragment, permissionFragment;
+    private Map<Class<? extends Fragment>, Fragment> fragmentMap;
     private AppUpdateBLOC appUpdateBLOC;
 
     @Override
@@ -53,9 +55,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        fragmentMap = new ConcurrentHashMap<>();
         appUpdateBLOC = ViewModelProviders.of(this).get(AppUpdateBLOC.class);
-
+        fragmentMap = new HashMap<>();
 
         if (!appUpdateBLOC.isRejectedAppUpdate()) {
             appUpdateBLOC.setActivity(this, REQUEST_CODE_UPDATE)
@@ -66,10 +67,10 @@ public class MainActivity extends AppCompatActivity
         final String action = getIntent().getAction();
         Log.d(TAG, "onCreate: action=" + action);
         if (TextUtils.equals(action, SplashActivity.ACTION_VIEW_STORE)) {
-            transitionFragment(createFragment(R.id.nav_map));
+            transitionFragment(R.id.nav_map);
             navView.setSelectedItemId(R.id.nav_map);
         } else if (TextUtils.equals(action, SplashActivity.ACTION_VIEW_ONLINE_STORE)) {
-            transitionFragment(createFragment(R.id.nav_shop));
+            transitionFragment(R.id.nav_shop);
             navView.setSelectedItemId(R.id.nav_shop);
         } else {
             updateInitialMapFragment();
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateInitialMapFragment() {
-        transitionFragment(createFragment(R.id.nav_map));
+        transitionFragment(R.id.nav_map);
         navView.setSelectedItemId(R.id.nav_map);
     }
 
@@ -96,37 +97,71 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
 
-        Fragment fragment = fragmentMap.computeIfAbsent(itemId, this::createFragment);
-        transitionFragment(fragment);
+        transitionFragment(itemId);
         return true;
     }
 
-    private void transitionFragment(final Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, fragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit();
+    private void transitionFragment(int itemId) {
+
+        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Class<? extends Fragment> targetFragmentClass = getaClass(itemId);
+        if (targetFragmentClass == null) {
+            return;
+        }
+
+        if (!fragmentMap.containsKey(targetFragmentClass)) {
+            fragmentTransaction.add(R.id.content,
+                    fragmentMap.computeIfAbsent(targetFragmentClass, this::createFragment));
+        }
+
+        final Fragment targetFragment = fragmentMap.get(targetFragmentClass);
+        if (targetFragment != null) {
+            fragmentTransaction.show(targetFragment);
+        }
+
+        fragmentMap.values().stream()
+                .filter(fragment -> fragment != targetFragment)
+                .forEach(fragmentTransaction::hide);
+
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commitAllowingStateLoss();
     }
 
-    private Fragment createFragment(int itemId) {
-        switch (itemId) {
-            case R.id.nav_map:
-                boolean isPermissionGranted = Arrays.stream(Permissions.PERMISSIONS)
-                        .allMatch(this::isPermissionRequested);
-
-                if (isPermissionGranted) {
-                    return MapsFragment.newInstance(getIntent().getExtras());
-                } else {
-                    return PermissionFragment.newInstance()
-                            .onSuccess(this::onSuccessGrantPermission)
-                            .onFailed(this::onFailedGrantPermission);
-                }
-
-            case R.id.nav_shop:
-                return OnlineStoreFragment.newInstance(getIntent().getExtras());
-            default:
-                throw new IllegalArgumentException("Not specified item id");
+    @Nullable
+    private Class<? extends Fragment> getaClass(final int itemId) {
+        if (itemId == R.id.nav_map) {
+            if (!isPermissionGranted()) {
+                return PermissionFragment.class;
+            } else {
+                return MapsFragment.class;
+            }
+        } else if (itemId == R.id.nav_shop) {
+            return OnlineStoreFragment.class;
+        } else {
+            return null;
         }
+    }
+
+    private Fragment createFragment(Class<? extends Fragment> fragmentClass) {
+        if (PermissionFragment.class.equals(fragmentClass)) {
+            return PermissionFragment.newInstance()
+                    .onSuccess(this::onSuccessGrantPermission)
+                    .onFailed(this::onFailedGrantPermission);
+
+        } else if (MapsFragment.class.equals(fragmentClass)) {
+            return MapsFragment.newInstance(getIntent().getExtras());
+
+        } else if (OnlineStoreFragment.class.equals(fragmentClass)) {
+            return OnlineStoreFragment.newInstance(getIntent().getExtras());
+
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private boolean isPermissionGranted() {
+        return Arrays.stream(Permissions.PERMISSIONS)
+                .allMatch(this::isPermissionRequested);
     }
 
     private void onSuccessGrantPermission() {

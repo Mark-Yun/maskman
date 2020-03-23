@@ -115,7 +115,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.filter, MapFilterFragment.newInstance())
-                .commit();
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commitAllowingStateLoss();
 
         FilterSettingUtils.registerOnFilterSettingChanged(getContext(), this);
     }
@@ -154,6 +155,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                     .firstElement()
                     .doOnSuccess(this::focusOnStore)
                     .subscribe();
+            getArguments().remove(KEY_CODE);
         } else {
             mainViewBLOC.maybeCurrentLocation()
                     .onErrorResumeNext(mainViewBLOC.observeCurrentLocation()
@@ -198,8 +200,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
         if (getFragmentManager() != null) {
             getFragmentManager().beginTransaction()
                     .replace(R.id.store_detail, storeDetailFragment)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit();
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commitAllowingStateLoss();
+
+            listButton.setVisibility(View.GONE);
         }
 
         return true;
@@ -214,7 +218,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 .remove(fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
                 .runOnCommit(() -> getView().findViewById(R.id.store_detail).setVisibility(View.GONE))
-                .commit();
+                .commitAllowingStateLoss();
+
+        listButton.setVisibility(View.VISIBLE);
     }
 
     private void showGuideToast() {

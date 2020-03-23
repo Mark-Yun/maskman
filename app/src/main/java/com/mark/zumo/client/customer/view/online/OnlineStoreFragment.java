@@ -11,10 +11,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -42,6 +44,9 @@ public class OnlineStoreFragment extends Fragment {
     @BindView(R.id.title) AppCompatTextView title;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
     @BindView(R.id.subscription) SwitchMaterial subscription;
+    @BindView(R.id.header) ConstraintLayout header;
+    @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.touch_protector) ConstraintLayout touchProtector;
 
     private OnlineStoreBLOC onlineStoreBLOC;
 
@@ -73,24 +78,46 @@ public class OnlineStoreFragment extends Fragment {
                 this::onOnlineStoreClicked,
                 this::onHideStore
         );
-        String selectedStoreUrl = Optional.ofNullable(getArguments())
+
+        final String selectedStoreUrl = Optional.ofNullable(getArguments())
                 .map(bundle -> bundle.getString(SplashActivity.KEY_ONLINE_STORE_URL))
                 .orElse("");
+
         if (!TextUtils.isEmpty(selectedStoreUrl)) {
             onlineStoreAdapter.setSelectedStoreUrl(selectedStoreUrl);
+            getArguments().remove(SplashActivity.KEY_ONLINE_STORE_URL);
         }
+
         recyclerView.setAdapter(onlineStoreAdapter);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+
+        header.setOnClickListener(v -> linearLayoutManager.scrollToPositionWithOffset(0, 0));
+        swipeRefreshLayout.setOnRefreshListener(this::queryOnlineStoreList);
+        swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_light,
+                android.R.color.holo_red_light,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light);
+
         onlineStoreBLOC.observeOnlineStoreList()
                 .doOnNext(onlineStoreAdapter::setOnlineStoreList)
                 .subscribe();
-
-        onlineStoreBLOC.queryOnlineStoreList();
+        queryOnlineStoreList();
 
         observeNewOnlineStoreSub();
         subscription.setOnClickListener(v -> onClickSubscription());
+    }
+
+    private void queryOnlineStoreList() {
+        touchProtector.setVisibility(View.VISIBLE);
+        onlineStoreBLOC.queryOnlineStoreList()
+                .doOnSuccess(x -> swipeRefreshLayout.setRefreshing(false))
+                .doOnError(x -> swipeRefreshLayout.setRefreshing(false))
+                .doOnSuccess(x -> touchProtector.setVisibility(View.GONE))
+                .doOnError(x -> touchProtector.setVisibility(View.GONE))
+                .subscribe();
     }
 
     private void observeNewOnlineStoreSub() {

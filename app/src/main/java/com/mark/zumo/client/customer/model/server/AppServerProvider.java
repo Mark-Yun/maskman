@@ -7,10 +7,12 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mark.zumo.client.customer.ContextHolder;
+import com.readystatesoftware.chuck.ChuckInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -37,11 +39,18 @@ public enum AppServerProvider {
     private static OkHttpClient okHttpClient(final Context context) {
         return new OkHttpClient.Builder()
                 .cache(new Cache(context.getCacheDir(), MAX_CACHE_SIZE))
-                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-                .connectTimeout(200, TimeUnit.SECONDS)
-                .readTimeout(200, TimeUnit.SECONDS)
-                .writeTimeout(200, TimeUnit.SECONDS)
+                .addInterceptor(createLogInterceptor())
+                .addInterceptor((new ChuckInterceptor(context)))
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
                 .build();
+    }
+
+    private static Interceptor createLogInterceptor() {
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.level(HttpLoggingInterceptor.Level.BODY);
+        return httpLoggingInterceptor;
     }
 
     private AppServer buildAppServerInterface() {

@@ -146,6 +146,7 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
         holder.price.setText(onlineStore.price);
         holder.startTime.setText(onlineStore.start_time);
         holder.content.setOnClickListener(v -> onClickStore.accept(onlineStore));
+        holder.subscription.setVisibility(onlineStore.status == OnlineStore.PREPARING ? View.VISIBLE : View.GONE);
         holder.subscription.setChecked(onlineStore.subscribe);
         holder.subscription.setOnCheckedChangeListener((buttonView, isChecked) -> onSubscribe.invoke(onlineStore, isChecked));
         holder.hide.setOnClickListener(v -> onHideStore(onlineStore));

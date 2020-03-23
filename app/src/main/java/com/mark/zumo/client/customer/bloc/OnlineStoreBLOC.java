@@ -49,11 +49,11 @@ public class OnlineStoreBLOC extends AndroidViewModel {
                 .doOnSubscribe(compositeDisposable::add);
     }
 
-    public void queryOnlineStoreList() {
-        storeManager.queryOnlineStore()
+    public Maybe<List<OnlineStore>> queryOnlineStoreList() {
+        return storeManager.queryOnlineStore()
                 .subscribeOn(Schedulers.io())
-                .doOnSubscribe(compositeDisposable::add)
-                .subscribe();
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(compositeDisposable::add);
     }
 
     public void setHideOnlineStore(final OnlineStore onlineStore, final boolean hide) {
