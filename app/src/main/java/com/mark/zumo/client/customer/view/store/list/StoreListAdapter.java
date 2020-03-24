@@ -58,13 +58,15 @@ class StoreListAdapter extends RecyclerView.Adapter<StoreListAdapter.ViewHolder>
         final Context context = holder.itemView.getContext();
         final Store store = storeList.get(position);
 
-        float distance = currentLocation.distanceTo(MapUtils.locationFrom(store.lat, store.lng));
+        if (currentLocation != null) {
+            float distance = currentLocation.distanceTo(MapUtils.locationFrom(store.lat, store.lng));
+            holder.dist.setText(MapUtils.convertDistance(context, distance));
+        }
 
         holder.icon.setImageResource(StoreUtils.getTypeDrawable(store.type));
         holder.name.setText(store.name);
         holder.stock.setText(StoreUtils.getStatusLabel(store.remain_stat));
         holder.stock.setBackgroundDrawable(context.getDrawable(StoreUtils.getStatusBackground(store.remain_stat)));
-        holder.dist.setText(MapUtils.convertDistance(context, distance));
         holder.stockAt.setText(DateUtils.convertTimeStamp(store.stock_at));
         holder.itemView.setOnClickListener(v -> onStoreSelect.accept(store.code));
     }
