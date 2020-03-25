@@ -143,8 +143,10 @@ public enum StoreManager {
 
     public Maybe<List<OnlineStore>> queryOnlineStore() {
         return appServer.queryOnlineStore()
-                .doOnSuccess(onlineStoreDao::insertOnlineStoreList)
-                .subscribeOn(Schedulers.io());
+                .doOnSuccess(onlineStoreList -> {
+                    onlineStoreDao.deleteAllOnlineStore();
+                    onlineStoreDao.insertOnlineStoreList(onlineStoreList);
+                }).subscribeOn(Schedulers.io());
     }
 
     public Observable<List<StoreHistory>> observableStoreHistory(final String code) {

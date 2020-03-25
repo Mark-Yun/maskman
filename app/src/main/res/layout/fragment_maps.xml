@@ -37,6 +37,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/list_button"
             style="@style/AppTheme.Button"
+            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/block2"

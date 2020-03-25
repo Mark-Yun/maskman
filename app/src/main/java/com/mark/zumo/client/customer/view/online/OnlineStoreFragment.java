@@ -83,6 +83,8 @@ public class OnlineStoreFragment extends Fragment {
                 .map(bundle -> bundle.getString(SplashActivity.KEY_ONLINE_STORE_URL))
                 .orElse("");
 
+        Log.d(TAG, "inflateView: selectedStoreUrl=" + selectedStoreUrl);
+
         if (!TextUtils.isEmpty(selectedStoreUrl)) {
             onlineStoreAdapter.setSelectedStoreUrl(selectedStoreUrl);
             getArguments().remove(SplashActivity.KEY_ONLINE_STORE_URL);
@@ -132,7 +134,7 @@ public class OnlineStoreFragment extends Fragment {
     private Void onHideStore(final OnlineStore onlineStore, final Runnable onCanceled) {
         onlineStoreBLOC.setHideOnlineStore(onlineStore, true);
         if (getView() != null) {
-            Snackbar.make(getView(), onlineStore.store_name + "의 판매 정보가 숨겨졌습니다.", Snackbar.LENGTH_LONG)
+            Snackbar.make(getView(), "판매 정보를 숨겼습니다.", Snackbar.LENGTH_LONG)
                     .setAction("실행취소", v -> {
                         onCanceled.run();
                         onlineStoreBLOC.setHideOnlineStore(onlineStore, false);

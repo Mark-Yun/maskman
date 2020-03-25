@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2018. Mark Soft - All Rights Reserved
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha
+        android:duration="500"
+        android:fromAlpha="1"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:repeatCount="7"
+        android:repeatMode="reverse"
+        android:toAlpha="0.2" />
+</set>

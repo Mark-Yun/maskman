@@ -176,6 +176,7 @@ public class NotificationBLOC {
 
         return builder.build();
     }
+
     private Notification createNewOnlineStoreNotification(final OnlineStore onlineStore) {
         final Bitmap bitmap = prepareBitmap(ContextHolder.getContext(), onlineStore.img_url);
         String subText = onlineStore.status == OnlineStore.ON_SALE

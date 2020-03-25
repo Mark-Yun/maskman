@@ -314,6 +314,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess(markerOptions -> {
                     markerOptions.forEach(googleMap::addMarker);
+                    listButton.setEnabled(true);
                     listButton.setText(getString(R.string.list_button_text, markerOptions.size()));
                 })
                 .subscribe();

@@ -21,6 +21,9 @@ public interface OnlineStoreDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOnlineStoreList(final List<OnlineStore> onlineStoreList);
 
+    @Query("DELETE FROM OnlineStore")
+    void deleteAllOnlineStore();
+
     @Query("SELECT * FROM OnlineStore")
     Flowable<List<OnlineStore>> flowableOnlineStoreList();
 

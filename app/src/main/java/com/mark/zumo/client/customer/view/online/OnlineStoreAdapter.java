@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
@@ -51,7 +53,6 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
     private final List<OnlineStore> onlineStoreList;
 
     private String selectedStoreUrl;
-    private int selectedStorePosition;
     private RecyclerView recyclerView;
 
     OnlineStoreAdapter(final Function2<OnlineStore, Boolean, Void> onSubscribe,
@@ -62,7 +63,6 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
         this.onHideStore = onClickHideStore;
 
         onlineStoreList = new CopyOnWriteArrayList<>();
-        selectedStorePosition = -1;
     }
 
     @StringRes
@@ -116,12 +116,27 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
         Log.d(TAG, "setOnlineStoreList: onlineStoreList=" + this.onlineStoreList.size());
         notifyDataSetChanged();
 
-        if (selectedStorePosition > 0) {
+        if (TextUtils.isEmpty(selectedStoreUrl)) {
+            return;
+        }
+
+        int selectedStorePosition = -1;
+        for (int i = 0; i < this.onlineStoreList.size(); i++) {
+            final OnlineStore onlineStore = this.onlineStoreList.get(i);
+            if (TextUtils.equals(selectedStoreUrl, onlineStore.store_url)) {
+                selectedStorePosition = i;
+                break;
+            }
+        }
+
+        final int positionMoveTo = selectedStorePosition;
+        Log.d(TAG, "setOnlineStoreList: selectedStorePosition=" + selectedStorePosition);
+        if (positionMoveTo > -1) {
             Optional.ofNullable(recyclerView)
                     .map(RecyclerView::getLayoutManager)
                     .filter(LinearLayoutManager.class::isInstance)
                     .map(LinearLayoutManager.class::cast)
-                    .ifPresent(layoutManager -> layoutManager.scrollToPositionWithOffset(selectedStorePosition, 0));
+                    .ifPresent(layoutManager -> layoutManager.scrollToPositionWithOffset(positionMoveTo, 0));
         }
     }
 
@@ -145,10 +160,11 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
         holder.storeName.setText(onlineStore.store_name);
         holder.price.setText(onlineStore.price);
         holder.startTime.setText(onlineStore.start_time);
+        holder.startTime.setVisibility(onlineStore.status == OnlineStore.PREPARING ? View.VISIBLE : View.GONE);
         holder.content.setOnClickListener(v -> onClickStore.accept(onlineStore));
         holder.subscription.setVisibility(onlineStore.status == OnlineStore.PREPARING ? View.VISIBLE : View.GONE);
         holder.subscription.setChecked(onlineStore.subscribe);
-        holder.subscription.setOnCheckedChangeListener((buttonView, isChecked) -> onSubscribe.invoke(onlineStore, isChecked));
+        holder.subscription.setOnClickListener(v -> onSubscribe.invoke(onlineStore, holder.subscription.isChecked()));
         holder.hide.setOnClickListener(v -> onHideStore(onlineStore));
         holder.status.setText(getSalesStatusLabel(onlineStore.status));
         holder.status.setTextColor(ContextHolder.getContext().getColor(getSalesStatusColor(onlineStore.status)));
@@ -163,8 +179,10 @@ class OnlineStoreAdapter extends RecyclerView.Adapter<OnlineStoreAdapter.ViewHol
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(holder.image);
 
-        if (TextUtils.equals(selectedStoreUrl, onlineStore.store_url)) {
-            selectedStorePosition = position;
+        if (TextUtils.equals(this.selectedStoreUrl, onlineStore.store_url)) {
+            Animation animation = AnimationUtils.loadAnimation(ContextHolder.getContext(), R.anim.blink_animation);
+            holder.itemView.setAnimation(animation);
+            animation.start();
         }
     }
 
